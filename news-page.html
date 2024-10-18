@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Новина: Оксана Білозір у Валенсії</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(45deg, #005bbb, #ffcd00);
+            background-size: 200% 200%;
+            animation: gradient 10s ease infinite;
+            color: #333;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 0%; }
+            25% { background-position: 100% 0%; }
+            50% { background-position: 100% 100%; }
+            75% { background-position: 0% 100%; }
+            100% { background-position: 0% 0%; }
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.5);
+            color: #333;
+            padding: 10px 20px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 20;
+        }
+
+        header h1 {
+            margin: 0;
+            text-align: center;
+            flex-grow: 1;
+            font-size: 1.8em;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 0 15px;
+        }
+
+        .main-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #333;
+            color: white;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Новина</h1>
+    </header>
+    
+    <div class="container">
+        <div class="main-content">
+            <h2>Оксана Білозір у Валенсії</h2>
+            <p><strong>Дата:</strong> 17 жовтня 2024, 20:00</p>
+            <p><strong>Місце:</strong> Театр Carolina</p>
+            <p>Оксана Білозір виступить у Валенсії з унікальним концертом. Це буде подія, яку не можна пропустити для всіх шанувальників української музики та культури. Виступ відбудеться в одному з найвідоміших театрів міста.</p>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2024 Українці в Валенсії. Всі права захищені.
+    </footer>
+</body>
+</html>
