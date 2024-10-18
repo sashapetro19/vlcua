@@ -1,2 +1,0 @@
-# vlcua
-Social Ukrainian Project
