@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Адмін Панель Новин</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+    <style id="theme-style">
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #e9ecef;
+            color: #333;
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 200px;
+            background-color: #007bff;
+            color: #fff;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .sidebar a.active, .sidebar a:hover {
+            background-color: #0056b3;
+        }
+
+        .theme-toggle {
+            margin-top: auto;
+            background-color: #6c757d;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .theme-toggle:hover {
+            background-color: #5a6268;
+        }
+
+        .admin-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-container, .news-list, .timeline-container, .live-preview-container {
+            background-color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .form-container.active, .news-list.active, .timeline-container.active, .live-preview-container.active {
+            display: block;
+        }
+
+        .form-container h1, .news-list h1, .timeline-container h1, .live-preview-container h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            color: #007bff;
+        }
+
+        .form-group {
+            margin-bottom: 8px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 3px;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.8em;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .form-actions button {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .form-actions .btn-save {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .form-actions .btn-save:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .form-actions .btn-clear {
+            background-color: #ffc107;
+            color: white;
+        }
+
+        .form-actions .btn-clear:hover {
+            background-color: #e0a800;
+            transform: translateY(-2px);
+        }
+
+        .news-item {
+            padding: 8px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .news-item h3 {
+            margin: 0;
+            font-size: 0.8em;
+        }
+
+        .news-item img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
+
+        .news-item-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .news-item .btn-delete, .news-item .btn-edit {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 6px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 0.8em;
+        }
+
+        .news-item .btn-delete:hover, .news-item .btn-edit:hover {
+            background-color: #c82333;
+        }
+
+        .news-item .btn-edit {
+            background-color: #007bff;
+        }
+
+        .news-item .btn-edit:hover {
+            background-color: #0056b3;
+        }
+
+        /* Модальне вікно */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            overflow: auto;
+        }
+
+        .modal.show {
+            display: block;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 700px;
+        }
+
+        .modal h2 {
+            text-align: center;
+        }
+
+        .modal.fade-in {
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        /* Пошук новин */
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .search-container input {
+            width: 100%;
+            max-width: 500px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        /* Таймлайн */
+        .timeline {
+            padding: 20px 0;
+        }
+
+        .timeline ul {
+            list-style-type: none;
+            position: relative;
+        }
+
+        .timeline ul li {
+            margin-bottom: 20px;
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline ul li:before {
+            content: '';
+            background: #007bff;
+            border-radius: 50%;
+            position: absolute;
+            left: 0;
+            top: 5px;
+            width: 10px;
+            height: 10px;
+        }
+
+        /* Живий попередній перегляд */
+        #live-preview {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+
+        /* Додаткові стилі для темної теми */
+        body.dark-mode {
+            background-color: #333;
+            color: #fff;
+        }
+
+        .sidebar.dark-mode {
+            background-color: #444;
+        }
+
+        .sidebar.dark-mode a.active, .sidebar.dark-mode a:hover {
+            background-color: #555;
+        }
+
+        .theme-toggle.dark-mode {
+            background-color: #555;
+        }
+
+        .form-container.dark-mode, .news-list.dark-mode, .timeline-container.dark-mode, .live-preview-container.dark-mode {
+            background-color: #444;
+            color: #fff;
+        }
+
+        /* Драг-н-дроп стилі */
+        #drop-zone {
+            padding: 20px;
+            border: 2px dashed #007bff;
+            text-align: center;
+            border-radius: 10px;
+            background-color: #f1f1f1;
+            cursor: pointer;
+        }
+
+        #drop-zone.dragging {
+            background-color: #d1e7ff;
+        }
+
+        #image-preview img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        /* Кнопка вибору файлу */
+        #news-image {
+            display: none;
+        }
+
+        #select-image-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        /* Адаптивність */
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 10px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .form-actions button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <a href="#" class="active" onclick="showSection('form-container')">Створення новин</a>
+        <a href="#" onclick="showSection('newsList')">Опубліковані новини</a>
+        <a href="#" onclick="showSection('timeline-container')">Таймлайн новин</a>
+        <a href="#" onclick="showSection('live-preview-container')">Живий попередній перегляд</a>
+        <div class="theme-toggle" onclick="toggleTheme()">Перемкнути тему</div>
+    </div>
+
+    <div class="admin-container">
+        <div class="form-container active" id="form-container">
+            <h1>Адмін Панель Додавання Новин</h1>
+            <div class="form-group">
+                <label for="news-title">Заголовок новини</label>
+                <input type="text" id="news-title" placeholder="Введіть заголовок новини">
+            </div>
+            <div class="form-group">
+                <label for="news-content">Текст новини</label>
+                <textarea id="news-content" rows="2" placeholder="Введіть текст новини"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="news-date">Дата</label>
+                <input type="date" id="news-date">
+            </div>
+            <div class="form-group">
+                <label for="news-place">Місце</label>
+                <input type="text" id="news-place" placeholder="Введіть місце події">
+            </div>
+            <div class="form-group">
+                <label for="news-category">Категорія</label>
+                <select id="news-category">
+                    <option value="events">Події</option>
+                    <option value="culture">Культура</option>
+                    <option value="sports">Спорт</option>
+                </select>
+            </div>
+
+            <!-- Драг-н-дроп для зображень -->
+            <div id="drop-zone">
+                Перетягніть зображення сюди або виберіть
+                <div id="image-preview"></div>
+            </div>
+            <input type="file" id="news-image" accept="image/*">
+            <div id="select-image-btn" onclick="document.getElementById('news-image').click();">Вибрати зображення</div>
+
+            <div class="form-actions">
+                <button class="btn-save" onclick="saveNews()">Зберегти новину</button>
+                <button class="btn-clear" onclick="clearForm()">Очистити</button>
+            </div>
+        </div>
+
+        <div class="news-list" id="newsList">
+            <h1>Опубліковані Новини</h1>
+            <div class="search-container">
+                <input type="text" id="news-search" placeholder="Пошук новин..." oninput="filterNews()">
+            </div>
+            <!-- Динамічно додані новини будуть відображені тут -->
+        </div>
+
+        <div class="timeline-container" id="timeline-container">
+            <h1>Таймлайн новин</h1>
+            <div class="timeline">
+                <ul id="timelineList"></ul>
+            </div>
+        </div>
+
+        <div class="live-preview-container" id="live-preview-container">
+            <h1>Живий попередній перегляд</h1>
+            <div id="live-preview">
+                <h2 id="live-preview-title">Попередній перегляд заголовку</h2>
+                <p id="live-preview-content">Попередній перегляд тексту</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно для редагування -->
+    <div id="editModal" class="modal fade-in">
+        <div class="modal-content">
+            <h2>Редагувати новину</h2>
+            <div class="form-group">
+                <label for="edit-news-title">Заголовок новини</label>
+                <input type="text" id="edit-news-title" placeholder="Введіть заголовок новини">
+            </div>
+            <div class="form-group">
+                <label for="edit-news-content">Текст новини</label>
+                <textarea id="edit-news-content" rows="2" placeholder="Введіть текст новини"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="edit-news-date">Дата</label>
+                <input type="date" id="edit-news-date">
+            </div>
+            <div class="form-group">
+                <label for="edit-news-place">Місце</label>
+                <input type="text" id="edit-news-place" placeholder="Введіть місце події">
+            </div>
+            <div class="form-group">
+                <label for="edit-news-category">Категорія</label>
+                <select id="edit-news-category">
+                    <option value="events">Події</option>
+                    <option value="culture">Культура</option>
+                    <option value="sports">Спорт</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="edit-news-image">Зображення новини</label>
+                <input type="file" id="edit-news-image" accept="image/*" onchange="previewEditImage(event)">
+                <div id="edit-image-preview" style="margin-top: 10px;"></div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-save" onclick="updateNews()">Зберегти зміни</button>
+                <button class="btn-clear" onclick="closeEditModal()">Закрити</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let newsData = JSON.parse(localStorage.getItem('newsData')) || [];
+        let currentEditIndex = null;
+
+        // Збереження новини з використанням FileReader для зображень
+        function saveNews() {
+            const title = document.getElementById('news-title').value;
+            const content = document.getElementById('news-content').value;
+            const date = document.getElementById('news-date').value;
+            const place = document.getElementById('news-place').value;
+            const category = document.getElementById('news-category').value;
+            const imageInput = document.getElementById('news-image');
+            let image = '';
+
+            if (imageInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    image = e.target.result; // Отримуємо зображення у форматі base64
+                    if (title && content && date && place && category) {
+                        const newNews = {
+                            title,
+                            content,
+                            date,
+                            place,
+                            category,
+                            image
+                        };
+                        newsData.push(newNews);
+                        localStorage.setItem('newsData', JSON.stringify(newsData));
+                        displayNews();
+                        clearForm();
+                    } else {
+                        alert('Будь ласка, заповніть всі поля.');
+                    }
+                };
+                reader.readAsDataURL(imageInput.files[0]);
+            } else {
+                if (title && content && date && place && category) {
+                    const newNews = {
+                        title,
+                        content,
+                        date,
+                        place,
+                        category,
+                        image
+                    };
+                    newsData.push(newNews);
+                    localStorage.setItem('newsData', JSON.stringify(newsData));
+                    displayNews();
+                    clearForm();
+                } else {
+                    alert('Будь ласка, заповніть всі поля.');
+                }
+            }
+        }
+
+        // Живий попередній перегляд новини
+        function livePreview() {
+            const title = document.getElementById('news-title').value;
+            const content = document.getElementById('news-content').value;
+            document.getElementById('live-preview-title').innerText = title;
+            document.getElementById('live-preview-content').innerText = content;
+        }
+
+        document.getElementById('news-title').addEventListener('input', livePreview);
+        document.getElementById('news-content').addEventListener('input', livePreview);
+
+        // Попередній перегляд зображення
+        function previewImage(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('image-preview').innerHTML = `<img src="${e.target.result}" alt="Попередній перегляд">`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Додавання ефекту під час драг-н-дроп
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('news-image');
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragging');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragging');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragging');
+            const files = e.dataTransfer.files;
+            fileInput.files = files;
+            previewImage(files[0]);
+        });
+
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files[0];
+            if (file) {
+                previewImage(file);
+            }
+        });
+
+        // Очищення форми
+        function clearForm() {
+            document.getElementById('news-title').value = '';
+            document.getElementById('news-content').value = '';
+            document.getElementById('news-date').value = '';
+            document.getElementById('news-place').value = '';
+            document.getElementById('news-category').value = 'events';
+            fileInput.value = '';
+            document.getElementById('image-preview').innerHTML = '';
+        }
+
+        // Видалення новини
+        function deleteNews(index, event) {
+            event.stopPropagation();
+            newsData.splice(index, 1);
+            localStorage.setItem('newsData', JSON.stringify(newsData));
+            displayNews();
+        }
+
+        // Редагування новини
+        function editNews(index) {
+            currentEditIndex = index;
+            const news = newsData[index];
+            document.getElementById('edit-news-title').value = news.title;
+            document.getElementById('edit-news-content').value = news.content;
+            document.getElementById('edit-news-date').value = news.date;
+            document.getElementById('edit-news-place').value = news.place;
+            document.getElementById('edit-news-category').value = news.category;
+            document.getElementById('edit-image-preview').innerHTML = news.image ? `<img src="${news.image}" alt="Попередній перегляд" style="max-width: 100%; border-radius: 8px;">` : '';
+            openEditModal();
+        }
+
+        // Оновлення новини
+        function updateNews() {
+            const title = document.getElementById('edit-news-title').value;
+            const content = document.getElementById('edit-news-content').value;
+            const date = document.getElementById('edit-news-date').value;
+            const place = document.getElementById('edit-news-place').value;
+            const category = document.getElementById('edit-news-category').value;
+            const imageInput = document.getElementById('edit-news-image');
+            let image = newsData[currentEditIndex].image;
+
+            if (imageInput.files.length > 0) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    image = e.target.result;
+                    if (title && content && date && place && category) {
+                        newsData[currentEditIndex] = {
+                            title,
+                            content,
+                            date,
+                            place,
+                            category,
+                            image
+                        };
+                        localStorage.setItem('newsData', JSON.stringify(newsData));
+                        displayNews();
+                        closeEditModal();
+                    } else {
+                        alert('Будь ласка, заповніть всі поля.');
+                    }
+                };
+                reader.readAsDataURL(imageInput.files[0]);
+            } else {
+                if (title && content && date && place && category) {
+                    newsData[currentEditIndex] = {
+                        title,
+                        content,
+                        date,
+                        place,
+                        category,
+                        image
+                    };
+                    localStorage.setItem('newsData', JSON.stringify(newsData));
+                    displayNews();
+                    closeEditModal();
+                } else {
+                    alert('Будь ласка, заповніть всі поля.');
+                }
+            }
+        }
+
+        // Попередній перегляд зображення під час редагування
+        function previewEditImage(event) {
+            const imagePreview = document.getElementById('edit-image-preview');
+            const imageFile = event.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                imagePreview.innerHTML = `<img src="${e.target.result}" alt="Попередній перегляд" style="max-width: 100%; border-radius: 8px;">`;
+            };
+
+            reader.readAsDataURL(imageFile);
+        }
+
+        // Відображення новин
+        function displayNews() {
+            const newsList = document.getElementById('newsList');
+            newsList.innerHTML = '';
+            newsData.forEach((news, index) => {
+                const newsItem = document.createElement('div');
+                newsItem.classList.add('news-item');
+                newsItem.innerHTML = `
+                    <div class="news-item-content" onclick="editNews(${index})">
+                        <img src="${news.image ? news.image : 'default-image.png'}" alt="Зображення новини" onerror="this.src='default-image.png';">
+                        <h3>${news.title}</h3>
+                    </div>
+                    <div class="news-item-buttons">
+                        <button class="btn-edit" onclick="editNews(${index}, event)">Редагувати</button>
+                        <button class="btn-delete" onclick="deleteNews(${index}, event)">Видалити</button>
+                    </div>
+                `;
+                newsList.appendChild(newsItem);
+            });
+        }
+
+        // Таймлайн для новин
+        function displayTimeline() {
+            const timelineList = document.getElementById('timelineList');
+            timelineList.innerHTML = '';
+            newsData.forEach((news) => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <div>
+                        <h4>${news.date} - ${news.title}</h4>
+                    </div>
+                `;
+                timelineList.appendChild(listItem);
+            });
+        }
+
+        // Перемикання темної теми
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            document.getElementById('sidebar').classList.toggle('dark-mode');
+            document.querySelectorAll('.form-container, .news-list, .timeline-container, .live-preview-container').forEach(el => {
+                el.classList.toggle('dark-mode');
+            });
+        }
+
+        // Відкриття модального вікна редагування
+        function openEditModal() {
+            const modal = document.getElementById('editModal');
+            modal.classList.add('show');
+        }
+
+        // Закриття модального вікна редагування
+        function closeEditModal() {
+            const modal = document.getElementById('editModal');
+            modal.classList.remove('show');
+        }
+
+        // Показати секцію
+        function showSection(sectionId) {
+            document.querySelectorAll('.form-container, .news-list, .timeline-container, .live-preview-container').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        // Пошук новин
+        function filterNews() {
+            const query = document.getElementById('news-search').value.toLowerCase();
+            const filteredNews = newsData.filter(news => news.title.toLowerCase().includes(query));
+            const newsList = document.getElementById('newsList');
+            newsList.innerHTML = '';
+            filteredNews.forEach((news, index) => {
+                const newsItem = document.createElement('div');
+                newsItem.classList.add('news-item');
+                newsItem.innerHTML = `
+                    <div class="news-item-content" onclick="editNews(${index})">
+                        <img src="${news.image}" alt="Зображення новини" onerror="this.src='default-image.png';">
+                        <h3>${news.title}</h3>
+                    </div>
+                    <div class="news-item-buttons">
+                        <button class="btn-edit" onclick="editNews(${index}, event)">Редагувати</button>
+                        <button class="btn-delete" onclick="deleteNews(${index}, event)">Видалити</button>
+                    </div>
+                `;
+                newsList.appendChild(newsItem);
+            });
+        }
+
+        // Відображення новин при завантаженні
+        displayNews();
+        displayTimeline();
+    </script>
+</body>
+</html>
