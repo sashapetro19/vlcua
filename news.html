@@ -73,9 +73,9 @@
 
         .menu-toggle {
             cursor: pointer;
-            z-index: 20;
             display: flex;
             flex-direction: column;
+            z-index: 30;
         }
 
         .menu-toggle div {
@@ -131,12 +131,12 @@
             display: flex;
             align-items: center;
             position: relative;
+            cursor: pointer;
         }
 
         .search-container svg {
             width: 30px;
             height: 30px;
-            cursor: pointer;
             color: #333;
         }
 
@@ -150,6 +150,7 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 30px;
+            min-height: 60vh; /* Встановлює мінімальну висоту для основного контенту */
         }
 
         @media (min-width: 768px) {
@@ -158,7 +159,6 @@
             }
         }
 
-        /* Стиль для карток новин */
         .news-card {
             position: relative;
             background-color: white;
@@ -186,7 +186,6 @@
             transform: scale(1.05);
         }
 
-        /* Заголовок на зображенні */
         .news-card .title-overlay {
             position: absolute;
             bottom: 0;
@@ -204,7 +203,6 @@
             background: rgba(0, 0, 0, 0.7);
         }
 
-        /* Стиль для фільтру новин */
         .filter-container {
             margin-bottom: 20px;
             width: 100%;
@@ -229,7 +227,6 @@
             margin-top: 40px;
         }
 
-        /* Модальне вікно на всю сторінку */
         .modal {
             display: none;
             position: fixed;
@@ -337,7 +334,6 @@
             background-color: #003d7a;
         }
 
-        /* Стрілки для навігації */
         .arrow {
             position: absolute;
             top: 50%;
@@ -375,15 +371,14 @@
             <div></div>
         </div>
         <h1>Новини</h1>
-        <div class="search-container">
-            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" onclick="toggleSearch()">
+        <div class="search-container" onclick="toggleSearch()">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <circle cx="10" cy="10" r="6" stroke="black" stroke-width="2" />
                 <line x1="16" y1="16" x2="22" y2="22" stroke="black" stroke-width="2" />
             </svg>
         </div>
     </header>
 
-    <!-- Панель пошуку -->
     <div class="search-panel" id="searchPanel">
         <button class="close-search" onclick="closeSearch()">×</button>
         <input type="text" placeholder="Пошук новин...">
@@ -407,16 +402,13 @@
                 <option value="sports">Спорт</option>
             </select>
         </div>
-        <div class="main-content" id="newsContainer">
-            <!-- Динамічні новини будуть додані через JS -->
-        </div>
+        <div class="main-content" id="newsContainer"></div>
     </div>
 
     <footer>
         &copy; 2024 Українці в Валенсії. Всі права захищені.
     </footer>
 
-    <!-- Модальне вікно -->
     <div id="myModal" class="modal">
         <div class="modal-content">
             <button class="arrow arrow-left" onclick="prevNews()">&larr;</button>
@@ -438,42 +430,37 @@
         const newsContainer = document.getElementById('newsContainer');
         let currentNewsIndex = 0;
 
-        // Дані з адмін-панелі, отримані з LocalStorage або за замовчуванням
-        let newsData = JSON.parse(localStorage.getItem('newsData')) || [
+        const newsData = [
             {
-                title: "Хода до Дня Незалежності",
-                content: "Це подія до Дня Незалежності України. Всі бажаючі можуть приєднатися. Деталі тут: https://example.com.",
-                date: "2024-12-24",
-                place: "Пласа Де Торос",
+                title: "БУМБОКС в Валенсії | Dronotour",
+                content: `Два з половиною роки на концертах Бумбокса можна почути фразу: "Цей концерт не є комерційним." Це не зовсім так. Ми зі всіх сіл намагаємося зробити кожен концерт туру максимально прибутковим для підтримки українських сил. Квитки 🎫 на : https://valensiia.karabas.com/bumboks-boombox-17`,
+                date: "2024-11-07",
+                place: "Madison Concert Club | C. Polideportivo, 23, 46950 Xirivella, Valencia",
                 category: "events",
-                image: "1.png"
+                image: "images/2.png"
             },
             {
-                title: "Фестиваль української культури",
-                content: "Щорічний фестиваль української культури з виступами, їжею та музикою. Дізнайтесь більше на https://culture-festival.ua.",
-                date: "2024-11-15",
-                place: "Парке Турія",
+                title: "ОДИН В КАНОЕ в Валенсії",
+                content: `Ти не один, а “Один в каное” нагадає тобі про це. Концерт “Один в каное” в Іспанії з метою збору коштів для ЗСУ. Квитки: https://es.mticket.eu/uk/valencia/odin-v-kanoe-valencia-2012.html`,
+                date: "2024-11-22",
+                place: "Zulu Club | Avinguda de, C. Benito Pérez Galdós, 39, 46960 Aldaia",
                 category: "culture",
-                image: "https://via.placeholder.com/150"
+                image: "images/4.png"
             }
         ];
 
-        // Функція для перетворення текстових URL на активні посилання
         function linkify(text) {
             const urlPattern = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
             return text.replace(urlPattern, '<a href="$1" target="_blank">$1</a>');
         }
 
-        // Функція для відображення новин
         function displayNews() {
             newsContainer.innerHTML = '';
-            // Сортуємо новини за датою, найближчі події зверху
             newsData.sort((a, b) => new Date(a.date) - new Date(b.date));
             newsData.forEach((news, index) => {
                 const newsItem = document.createElement('div');
                 newsItem.classList.add('news-card');
                 newsItem.setAttribute('data-category', news.category);
-                newsItem.setAttribute('data-date', news.date); // Додано атрибут дати
                 newsItem.setAttribute('onclick', `openModal(${index})`);
                 newsItem.innerHTML = `
                     <img src="${news.image}" alt="Зображення новини">
@@ -483,30 +470,25 @@
             });
         }
 
-        // Функція для відображення новини за індексом
         function displayNewsByIndex(index) {
             const news = newsData[index];
             document.getElementById('modalTitle').innerText = news.title;
-            document.getElementById('modalContent').innerHTML = linkify(news.content); // Застосовуємо linkify до тексту новини
+            document.getElementById('modalContent').innerHTML = linkify(news.content);
             document.getElementById('modalDate').innerText = news.date;
             document.getElementById('modalPlace').innerText = news.place;
             document.getElementById('modalImage').src = news.image;
         }
 
-        // Функція для відкриття модального вікна з новиною
         function openModal(index) {
             currentNewsIndex = index;
             displayNewsByIndex(currentNewsIndex);
-
-            const modal = document.getElementById("myModal");
-            modal.classList.add('show');
-            modal.classList.remove('hide');
-
-            // Заборона прокрутки сторінки
-            document.body.classList.add('modal-open');
+            document.getElementById("myModal").classList.add('show');
         }
 
-        // Функція для переходу до попередньої новини
+        function closeModal() {
+            document.getElementById("myModal").classList.remove('show');
+        }
+
         function prevNews() {
             if (currentNewsIndex > 0) {
                 currentNewsIndex--;
@@ -514,7 +496,6 @@
             }
         }
 
-        // Функція для переходу до наступної новини
         function nextNews() {
             if (currentNewsIndex < newsData.length - 1) {
                 currentNewsIndex++;
@@ -522,75 +503,28 @@
             }
         }
 
-        // Функція для закриття модального вікна
-        function closeModal() {
-            const modal = document.getElementById("myModal");
-            modal.classList.add('hide');
-            setTimeout(() => {
-                modal.classList.remove('show');
-                document.body.classList.remove('modal-open');
-            }, 300);
-        }
-
-        // Закриття модального вікна при натисканні поза його межами
-        window.onclick = function(event) {
-            const modal = document.getElementById("myModal");
-            if (event.target === modal) {
-                closeModal();
-            }
-        }
-
-        // Закриття модального вікна при натисканні клавіші Escape
-        window.onkeydown = function(event) {
-            if (event.key === 'Escape') {
-                closeModal();
-            }
-        }
-
-        // Фільтрація новин за категоріями
         function filterNews() {
             const filterValue = document.getElementById('categoryFilter').value;
-            const newsItems = document.querySelectorAll('.news-card');
-
-            newsItems.forEach(item => {
-                if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
-                }
+            document.querySelectorAll('.news-card').forEach(item => {
+                item.style.display = (filterValue === 'all' || item.getAttribute('data-category') === filterValue) ? 'block' : 'none';
             });
         }
 
-        displayNews();
-
-        // Функція для перемикання меню
         function toggleMenu() {
             const navbar = document.getElementById('navbar');
-            if (navbar.style.display === "flex") {
-                navbar.style.display = "none";
-            } else {
-                navbar.style.display = "flex";
-                navbar.style.flexDirection = "column";
-                navbar.style.position = "fixed";
-                navbar.style.width = "100%";
-                navbar.style.height = "calc(100% - 60px)";
-                navbar.style.top = "60px";
-                navbar.style.zIndex = "10";
-                navbar.style.overflowY = "auto";
-            }
+            navbar.style.display = navbar.style.display === 'flex' ? 'none' : 'flex';
         }
 
-        // Функція для відкриття панелі пошуку
         function toggleSearch() {
             const searchPanel = document.getElementById('searchPanel');
-            searchPanel.classList.add('show');
+            searchPanel.classList.toggle('show');
         }
 
-        // Функція для закриття панелі пошуку
         function closeSearch() {
-            const searchPanel = document.getElementById('searchPanel');
-            searchPanel.classList.remove('show');
+            document.getElementById('searchPanel').classList.remove('show');
         }
+
+        displayNews();
     </script>
 </body>
 </html>
