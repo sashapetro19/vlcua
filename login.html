@@ -294,15 +294,20 @@
         const SUPABASE_URL = 'https://txfotpnmjtsxidfszufz.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4Zm90cG5tanRzeGlkZnN6dWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4MDE5MzIsImV4cCI6MjA2OTM3NzkzMn0.wVH9gSC1GT9T1loXImfM8hnp9x5GT2dvSPumWJYAWi4';
         
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // ВИПРАВЛЕНА ІНІЦІАЛІЗАЦІЯ SUPABASE
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentTab = 'login';
 
         // Check if user is already logged in
         async function checkAuth() {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                window.location.href = 'dashboard.html';
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) {
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
             }
         }
 
@@ -345,7 +350,7 @@
                 const { data, error } = await supabase.auth.signInWithOAuth({
                     provider: 'google',
                     options: {
-                        redirectTo: window.location.origin + '/dashboard.html'
+                        redirectTo: `${window.location.origin}/dashboard.html`
                     }
                 });
                 
@@ -363,9 +368,14 @@
         async function handleLogin(event) {
             event.preventDefault();
             
-            const email = document.getElementById('loginEmail').value;
+            const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
             const button = document.getElementById('loginButton');
+            
+            if (!email || !password) {
+                showMessage('Заповніть всі поля');
+                return;
+            }
             
             button.disabled = true;
             button.textContent = 'Входимо...';
@@ -379,14 +389,26 @@
                 
                 if (error) throw error;
                 
-                showMessage('Успішний вхід! Перенаправляємо...', 'success');
-                setTimeout(() => {
-                    window.location.href = 'dashboard.html';
-                }, 1500);
+                if (data.user) {
+                    showMessage('Успішний вхід! Перенаправляємо...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1500);
+                }
                 
             } catch (error) {
                 console.error('Login error:', error);
-                showMessage(`Помилка входу: ${error.message}`);
+                let errorMessage = 'Невідома помилка';
+                
+                if (error.message.includes('Invalid login credentials')) {
+                    errorMessage = 'Невірний email або пароль';
+                } else if (error.message.includes('Email not confirmed')) {
+                    errorMessage = 'Підтвердіть email перед входом';
+                } else {
+                    errorMessage = error.message;
+                }
+                
+                showMessage(`Помилка входу: ${errorMessage}`);
             } finally {
                 button.disabled = false;
                 button.textContent = 'Увійти';
@@ -397,13 +419,23 @@
         async function handleSignup(event) {
             event.preventDefault();
             
-            const email = document.getElementById('signupEmail').value;
+            const email = document.getElementById('signupEmail').value.trim();
             const password = document.getElementById('signupPassword').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const button = document.getElementById('signupButton');
             
+            if (!email || !password || !confirmPassword) {
+                showMessage('Заповніть всі поля');
+                return;
+            }
+            
             if (password !== confirmPassword) {
                 showMessage('Паролі не співпадають');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showMessage('Пароль повинен містити щонайменше 6 символів');
                 return;
             }
             
@@ -421,6 +453,11 @@
                 
                 showMessage('Реєстрація успішна! Перевірте пошту для підтвердження.', 'success');
                 
+                // Clear form
+                document.getElementById('signupEmail').value = '';
+                document.getElementById('signupPassword').value = '';
+                document.getElementById('confirmPassword').value = '';
+                
                 // Switch to login tab after successful signup
                 setTimeout(() => {
                     switchTab('login');
@@ -429,7 +466,17 @@
                 
             } catch (error) {
                 console.error('Signup error:', error);
-                showMessage(`Помилка реєстрації: ${error.message}`);
+                let errorMessage = 'Невідома помилка';
+                
+                if (error.message.includes('User already registered')) {
+                    errorMessage = 'Користувач з таким email вже існує';
+                } else if (error.message.includes('Invalid email')) {
+                    errorMessage = 'Невірний формат email';
+                } else {
+                    errorMessage = error.message;
+                }
+                
+                showMessage(`Помилка реєстрації: ${errorMessage}`);
             } finally {
                 button.disabled = false;
                 button.textContent = 'Зареєструватися';
@@ -439,11 +486,11 @@
         // Reset password
         async function resetPassword() {
             const email = prompt('Введіть ваш email для відновлення пароля:');
-            if (!email) return;
+            if (!email || !email.trim()) return;
             
             try {
-                const { error } = await supabase.auth.resetPasswordForEmail(email, {
-                    redirectTo: window.location.origin + '/reset-password.html'
+                const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+                    redirectTo: `${window.location.origin}/reset-password.html`
                 });
                 
                 if (error) throw error;
@@ -455,8 +502,20 @@
             }
         }
 
+        // Listen for auth state changes
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                showMessage('Успішний вхід! Перенаправляємо...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+            }
+        });
+
         // Initialize
-        document.addEventListener('DOMContentLoaded', checkAuth);
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+        });
     </script>
 </body>
 </html>
