@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Управління контентом</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase/2.39.7/index.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logout-btn {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(238, 90, 36, 0.3);
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            min-width: 120px;
+        }
+
+        .tab.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab:hover:not(.active) {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .content-section {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.8em;
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .add-btn {
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(58, 123, 213, 0.3);
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .item-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .item-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        .item-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #f0f0f0, #e0e0e0);
+        }
+
+        .item-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .item-info {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background: linear-gradient(45deg, #ffa726, #ff9800);
+            color: white;
+        }
+
+        .edit-btn:hover {
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
+        }
+
+        .delete-btn {
+            background: linear-gradient(45deg, #ef5350, #f44336);
+            color: white;
+        }
+
+        .delete-btn:hover {
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            padding: 5px;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-btn:hover {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px dashed #e0e0e0;
+            border-radius: 10px;
+            background: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-input:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .save-btn {
+            background: linear-gradient(45deg, #4caf50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
+        }
+
+        .cancel-btn {
+            background: #f5f5f5;
+            color: #666;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .cancel-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding: 10px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .tabs {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .tab {
+                min-width: auto;
+            }
+
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: stretch;
+            }
+
+            .modal-content {
+                margin: 10px;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>🏢 Dashboard</h1>
+            <div class="user-info">
+                <span id="userEmail">Завантаження...</span>
+                <button class="logout-btn" onclick="logout()">Вийти</button>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('businesses')">🏢 Бізнес</button>
+            <button class="tab" onclick="switchTab('events')">🎉 Події</button>
+            <button class="tab" onclick="switchTab('housing')">🏠 Житло</button>
+            <button class="tab" onclick="switchTab('jobs')">💼 Робота</button>
+        </div>
+
+        <!-- Businesses Section -->
+        <div id="businesses" class="content-section active">
+            <div class="section-header">
+                <h2 class="section-title">Мої бізнеси</h2>
+                <button class="add-btn" onclick="openModal('business')">
+                    ➕ Додати бізнес
+                </button>
+            </div>
+            <div id="businessesLoading" class="loading">
+                <div class="spinner"></div>
+                <p>Завантаження бізнесів...</p>
+            </div>
+            <div id="businessesGrid" class="items-grid"></div>
+        </div>
+
+        <!-- Events Section -->
+        <div id="events" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Мої події</h2>
+                <button class="add-btn" onclick="openModal('event')">
+                    ➕ Додати подію
+                </button>
+            </div>
+            <div id="eventsLoading" class="loading">
+                <div class="spinner"></div>
+                <p>Завантаження подій...</p>
+            </div>
+            <div id="eventsGrid" class="items-grid"></div>
+        </div>
+
+        <!-- Housing Section -->
+        <div id="housing" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Моє житло</h2>
+                <button class="add-btn" onclick="openModal('housing')">
+                    ➕ Додати житло
+                </button>
+            </div>
+            <div id="housingLoading" class="loading">
+                <div class="spinner"></div>
+                <p>Завантаження житла...</p>
+            </div>
+            <div id="housingGrid" class="items-grid"></div>
+        </div>
+
+        <!-- Jobs Section -->
+        <div id="jobs" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Мої вакансії</h2>
+                <button class="add-btn" onclick="openModal('job')">
+                    ➕ Додати вакансію
+                </button>
+            </div>
+            <div id="jobsLoading" class="loading">
+                <div class="spinner"></div>
+                <p>Завантаження вакансій...</p>
+            </div>
+            <div id="jobsGrid" class="items-grid"></div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Додати запис</h3>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <form id="itemForm" onsubmit="saveItem(event)">
+                <div id="formFields"></div>
+                <div class="form-actions">
+                    <button type="button" class="cancel-btn" onclick="closeModal()">Скасувати</button>
+                    <button type="submit" class="save-btn">Зберегти</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Supabase configuration - ЗАМІНІТЬ НА ВАШІ ДАНІ
+        const SUPABASE_URL = 'https://txfotpnmjtsxidfszufz.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4Zm90cG5tanRzeGlkZnN6dWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4MDE5MzIsImV4cCI6MjA2OTM3NzkzMn0.wVH9gSC1GT9T1loXImfM8hnp9x5GT2dvSPumWJYAWi4';
+        
+        const supabase = supabase.createClient(https://txfotpnmjtsxidfszufz.supabase.co, SUPABASE_ANON_KEY);
+        
+        let currentUser = null;
+        let currentTab = 'businesses';
+        let currentItem = null;
+        let currentType = null;
+
+        // Field configurations for each content type
+        const fieldConfigs = {
+            business: [
+                { name: 'title', label: 'Назва бізнесу', type: 'text', required: true },
+                { name: 'image_url', label: 'Логотип', type: 'file', required: false },
+                { name: 'category', label: 'Категорія', type: 'text', required: true },
+                { name: 'description', label: 'Опис', type: 'textarea', required: true },
+                { name: 'phone', label: 'Телефон', type: 'tel', required: true },
+                { name: 'facebook', label: 'Facebook', type: 'url', required: false },
+                { name: 'instagram', label: 'Instagram', type: 'url', required: false },
+                { name: 'google_maps', label: 'Google Maps', type: 'url', required: false }
+            ],
+            event: [
+                { name: 'title', label: 'Назва події', type: 'text', required: true },
+                { name: 'datetime', label: 'Дата та час', type: 'datetime-local', required: true },
+                { name: 'location', label: 'Місце проведення', type: 'text', required: true },
+                { name: 'image_url', label: 'Фото', type: 'file', required: false },
+                { name: 'description', label: 'Опис події', type: 'textarea', required: true },
+                { name: 'link', label: 'Посилання на деталі', type: 'url', required: false }
+            ],
+            housing: [
+                { name: 'type', label: 'Тип житла', type: 'select', options: ['кімната', 'квартира'], required: true },
+                { name: 'address', label: 'Адреса', type: 'text', required: true },
+                { name: 'price', label: 'Ціна', type: 'number', required: true },
+                { name: 'description', label: 'Опис', type: 'textarea', required: true },
+                { name: 'phone', label: 'Телефон', type: 'tel', required: true },
+                { name: 'image_url', label: 'Фото житла', type: 'file', required: false }
+            ],
+            job: [
+                { name: 'title', label: 'Назва вакансії', type: 'text', required: true },
+                { name: 'type', label: 'Тип зайнятості', type: 'text', required: true },
+                { name: 'salary', label: 'Оплата', type: 'number', required: false },
+                { name: 'description', label: 'Опис', type: 'textarea', required: true },
+                { name: 'contact_info', label: 'Контактні дані', type: 'text', required: true },
+                { name: 'image_url', label: 'Логотип компанії', type: 'file', required: false }
+            ]
+        };
+
+        // Initialize dashboard
+        async function init() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                currentUser = user;
+                document.getElementById('userEmail').textContent = user.email;
+                
+                await loadContent();
+            } catch (error) {
+                console.error('Initialization error:', error);
+                alert('Помилка ініціалізації. Спробуйте перезавантажити сторінку.');
+            }
+        }
+
+        // Load content for all sections
+        async function loadContent() {
+            await Promise.all([
+                loadBusinesses(),
+                loadEvents(),
+                loadHousing(),
+                loadJobs()
+            ]);
+        }
+
+        // Load businesses
+        async function loadBusinesses() {
+            const loading = document.getElementById('businessesLoading');
+            const grid = document.getElementById('businessesGrid');
+            
+            loading.style.display = 'block';
+            
+            try {
+                const { data, error } = await supabase
+                    .from('businesses')
+                    .select('*')
+                    .eq('owner_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                grid.innerHTML = '';
+                
+                if (data.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🏢</div>
+                            <h3>Немає бізнесів</h3>
+                            <p>Додайте свій перший бізнес</p>
+                        </div>
+                    `;
+                } else {
+                    data.forEach(item => {
+                        grid.appendChild(createBusinessCard(item));
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading businesses:', error);
+                grid.innerHTML = '<p>Помилка завантаження бізнесів</p>';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Load events
+        async function loadEvents() {
+            const loading = document.getElementById('eventsLoading');
+            const grid = document.getElementById('eventsGrid');
+            
+            loading.style.display = 'block';
+            
+            try {
+                const { data, error } = await supabase
+                    .from('events')
+                    .select('*')
+                    .eq('owner_id', currentUser.id)
+                    .order('datetime', { ascending: true });
+
+                if (error) throw error;
+
+                grid.innerHTML = '';
+                
+                if (data.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🎉</div>
+                            <h3>Немає подій</h3>
+                            <p>Додайте свою першу подію</p>
+                        </div>
+                    `;
+                } else {
+                    data.forEach(item => {
+                        grid.appendChild(createEventCard(item));
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading events:', error);
+                grid.innerHTML = '<p>Помилка завантаження подій</p>';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Load housing
+        async function loadHousing() {
+            const loading = document.getElementById('housingLoading');
+            const grid = document.getElementById('housingGrid');
+            
+            loading.style.display = 'block';
+            
+            try {
+                const { data, error } = await supabase
+                    .from('housing')
+                    .select('*')
+                    .eq('owner_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                grid.innerHTML = '';
+                
+                if (data.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🏠</div>
+                            <h3>Немає житла</h3>
+                            <p>Додайте своє перше житло</p>
+                        </div>
+                    `;
+                } else {
+                    data.forEach(item => {
+                        grid.appendChild(createHousingCard(item));
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading housing:', error);
+                grid.innerHTML = '<p>Помилка завантаження житла</p>';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Load jobs
+        async function loadJobs() {
+            const loading = document.getElementById('jobsLoading');
+            const grid = document.getElementById('jobsGrid');
+            
+            loading.style.display = 'block';
+            
+            try {
+                const { data, error } = await supabase
+                    .from('jobs')
+                    .select('*')
+                    .eq('owner_id', currentUser.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                grid.innerHTML = '';
+                
+                if (data.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💼</div>
+                            <h3>Немає вакансій</h3>
+                            <p>Додайте свою першу вакансію</p>
+                        </div>
+                    `;
+                } else {
+                    data.forEach(item => {
+                        grid.appendChild(createJobCard(item));
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading jobs:', error);
+                grid.innerHTML = '<p>Помилка завантаження вакансій</p>';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Create business card
+        function createBusinessCard(business) {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            card.innerHTML = `
+                ${business.image_url ? `<img src="${business.image_url}" alt="${business.title}" class="item-image">` : '<div class="item-image"></div>'}
+                <div class="item-title">${business.title}</div>
+                <div class="item-info">
+                    <strong>Категорія:</strong> ${business.category}<br>
+                    <strong>Телефон:</strong> ${business.phone}<br>
+                    <strong>Опис:</strong> ${business.description}
+                </div>
+                <div class="item-actions">
+                    <button class="action-btn edit-btn" onclick="editItem('business', ${business.id})">✏️</button>
+                    <button class="action-btn delete-btn" onclick="deleteItem('businesses', ${business.id})">🗑️</button>
+                </div>
+            `;
+            return card;
+        }
+
+        // Create event card
+        function createEventCard(event) {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            const eventDate = new Date(event.datetime).toLocaleString('uk-UA');
+            card.innerHTML = `
+                ${event.image_url ? `<img src="${event.image_url}" alt="${event.title}" class="item-image">` : '<div class="item-image"></div>'}
+                <div class="item-title">${event.title}</div>
+                <div class="item-info">
+                    <strong>Дата:</strong> ${eventDate}<br>
+                    <strong>Місце:</strong> ${event.location}<br>
+                    <strong>Опис:</strong> ${event.description}
+                </div>
+                <div class="item-actions">
+                    <button class="action-btn edit-btn" onclick="editItem('event', ${event.id})">✏️</button>
+                    <button class="action-btn delete-btn" onclick="deleteItem('events', ${event.id})">🗑️</button>
+                </div>
+            `;
+            return card;
+        }
+
+        // Create housing card
+        function createHousingCard(housing) {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            card.innerHTML = `
+                ${housing.image_url ? `<img src="${housing.image_url}" alt="${housing.type}" class="item-image">` : '<div class="item-image"></div>'}
+                <div class="item-title">${housing.type} - ${housing.price}₴</div>
+                <div class="item-info">
+                    <strong>Адреса:</strong> ${housing.address}<br>
+                    <strong>Телефон:</strong> ${housing.phone}<br>
+                    <strong>Опис:</strong> ${housing.description}
+                </div>
+                <div class="item-actions">
+                    <button class="action-btn edit-btn" onclick="editItem('housing', ${housing.id})">✏️</button>
+                    <button class="action-btn delete-btn" onclick="deleteItem('housing', ${housing.id})">🗑️</button>
+                </div>
+            `;
+            return card;
+        }
+
+        // Create job card
+        function createJobCard(job) {
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            card.innerHTML = `
+                ${job.image_url ? `<img src="${job.image_url}" alt="${job.title}" class="item-image">` : '<div class="item-image"></div>'}
+                <div class="item-title">${job.title}</div>
+                <div class="item-info">
+                    <strong>Тип:</strong> ${job.type}<br>
+                    ${job.salary ? `<strong>Оплата:</strong> ${job.salary}₴<br>` : ''}
+                    <strong>Контакт:</strong> ${job.contact_info}<br>
+                    <strong>Опис:</strong> ${job.description}
+                </div>
+                <div class="item-actions">
+                    <button class="action-btn edit-btn" onclick="editItem('job', ${job.id})">✏️</button>
+                    <button class="action-btn delete-btn" onclick="deleteItem('jobs', ${job.id})">🗑️</button>
+                </div>
+            `;
+            return card;
+        }
+
+        // Switch between tabs
+        function switchTab(tab) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Update content sections
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            
+            currentTab = tab;
+        }
+
+        // Open modal for adding/editing
+        function openModal(type, item = null) {
+            currentType = type;
+            currentItem = item;
+            
+            const modal = document.getElementById('modal');
+            const title = document.getElementById('modalTitle');
+            const form = document.getElementById('itemForm');
+            const fields = document.getElementById('formFields');
+            
+            // Set modal title
+            const titles = {
+                business: item ? 'Редагувати бізнес' : 'Додати бізнес',
+                event: item ? 'Редагувати подію' : 'Додати подію',
+                housing: item ? 'Редагувати житло' : 'Додати житло',
+                job: item ? 'Редагувати вакансію' : 'Додати вакансію'
+            };
+            title.textContent = titles[type];
+            
+            // Generate form fields
+            fields.innerHTML = '';
+            const config = fieldConfigs[type];
+            
+            config.forEach(field => {
+                const group = document.createElement('div');
+                group.className = 'form-group';
+                
+                const label = document.createElement('label');
+                label.className = 'form-label';
+                label.textContent = field.label;
+                label.setAttribute('for', field.name);
+                
+                let input;
+                
+                if (field.type === 'textarea') {
+                    input = document.createElement('textarea');
+                    input.className = 'form-textarea';
+                } else if (field.type === 'select') {
+                    input = document.createElement('select');
+                    input.className = 'form-select';
+                    field.options.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option;
+                        opt.textContent = option;
+                        input.appendChild(opt);
+                    });
+                } else if (field.type === 'file') {
+                    input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/*';
+                    input.className = 'file-input';
+                } else {
+                    input = document.createElement('input');
+                    input.type = field.type;
+                    input.className = 'form-input';
+                }
+                
+                input.id = field.name;
+                input.name = field.name;
+                if (field.required) input.required = true;
+                
+                // Set existing values if editing
+                if (item && field.type !== 'file') {
+                    if (field.type === 'datetime-local') {
+                        // Convert datetime to local format
+                        const date = new Date(item[field.name]);
+                        input.value = date.toISOString().slice(0, 16);
+                    } else {
+                        input.value = item[field.name] || '';
+                    }
+                }
+                
+                group.appendChild(label);
+                group.appendChild(input);
+                fields.appendChild(group);
+            });
+            
+            // Reset form
+            form.reset();
+            
+            // Fill form if editing
+            if (item) {
+                config.forEach(field => {
+                    if (field.type !== 'file') {
+                        const input = document.getElementById(field.name);
+                        if (input && item[field.name] !== undefined) {
+                            if (field.type === 'datetime-local') {
+                                const date = new Date(item[field.name]);
+                                input.value = date.toISOString().slice(0, 16);
+                            } else {
+                                input.value = item[field.name];
+                            }
+                        }
+                    }
+                });
+            }
+            
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close modal
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            currentItem = null;
+            currentType = null;
+        }
+
+        // Upload file to Supabase Storage
+        async function uploadFile(file, bucket = 'images') {
+            try {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${currentUser.id}/${Date.now()}.${fileExt}`;
+                
+                const { data, error } = await supabase.storage
+                    .from(bucket)
+                    .upload(fileName, file);
+                
+                if (error) throw error;
+                
+                const { data: { publicUrl } } = supabase.storage
+                    .from(bucket)
+                    .getPublicUrl(fileName);
+                
+                return publicUrl;
+            } catch (error) {
+                console.error('Upload error:', error);
+                throw error;
+            }
+        }
+
+        // Save item (add or update)
+        async function saveItem(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = {};
+            
+            // Prepare data object
+            const config = fieldConfigs[currentType];
+            for (const field of config) {
+                if (field.type === 'file') {
+                    const file = formData.get(field.name);
+                    if (file && file.size > 0) {
+                        try {
+                            data[field.name] = await uploadFile(file);
+                        } catch (error) {
+                            alert(`Помилка завантаження файлу: ${error.message}`);
+                            return;
+                        }
+                    } else if (currentItem && currentItem[field.name]) {
+                        data[field.name] = currentItem[field.name];
+                    }
+                } else {
+                    const value = formData.get(field.name);
+                    if (field.type === 'number') {
+                        data[field.name] = value ? parseFloat(value) : null;
+                    } else {
+                        data[field.name] = value || null;
+                    }
+                }
+            }
+            
+            // Add owner_id
+            data.owner_id = currentUser.id;
+            
+            try {
+                const tableName = currentType === 'business' ? 'businesses' : 
+                                 currentType === 'event' ? 'events' :
+                                 currentType === 'housing' ? 'housing' : 'jobs';
+                
+                if (currentItem) {
+                    // Update existing item
+                    const { error } = await supabase
+                        .from(tableName)
+                        .update(data)
+                        .eq('id', currentItem.id);
+                    
+                    if (error) throw error;
+                } else {
+                    // Create new item
+                    const { error } = await supabase
+                        .from(tableName)
+                        .insert([data]);
+                    
+                    if (error) throw error;
+                }
+                
+                closeModal();
+                
+                // Reload appropriate section
+                switch (currentType) {
+                    case 'business':
+                        await loadBusinesses();
+                        break;
+                    case 'event':
+                        await loadEvents();
+                        break;
+                    case 'housing':
+                        await loadHousing();
+                        break;
+                    case 'job':
+                        await loadJobs();
+                        break;
+                }
+                
+                alert(currentItem ? 'Запис оновлено!' : 'Запис додано!');
+                
+            } catch (error) {
+                console.error('Save error:', error);
+                alert(`Помилка збереження: ${error.message}`);
+            }
+        }
+
+        // Edit item
+        async function editItem(type, id) {
+            try {
+                const tableName = type === 'business' ? 'businesses' : 
+                                 type === 'event' ? 'events' :
+                                 type === 'housing' ? 'housing' : 'jobs';
+                
+                const { data, error } = await supabase
+                    .from(tableName)
+                    .select('*')
+                    .eq('id', id)
+                    .single();
+                
+                if (error) throw error;
+                
+                openModal(type, data);
+            } catch (error) {
+                console.error('Edit error:', error);
+                alert(`Помилка завантаження запису: ${error.message}`);
+            }
+        }
+
+        // Delete item
+        async function deleteItem(tableName, id) {
+            if (!confirm('Ви впевнені, що хочете видалити цей запис?')) {
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from(tableName)
+                    .delete()
+                    .eq('id', id);
+                
+                if (error) throw error;
+                
+                // Reload appropriate section
+                switch (tableName) {
+                    case 'businesses':
+                        await loadBusinesses();
+                        break;
+                    case 'events':
+                        await loadEvents();
+                        break;
+                    case 'housing':
+                        await loadHousing();
+                        break;
+                    case 'jobs':
+                        await loadJobs();
+                        break;
+                }
+                
+                alert('Запис видалено!');
+                
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert(`Помилка видалення: ${error.message}`);
+            }
+        }
+
+        // Logout
+        async function logout() {
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+                
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+                alert('Помилка виходу з системи');
+            }
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
