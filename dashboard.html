@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Управління контентом</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase/2.39.7/index.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -63,6 +63,51 @@
         .logout-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(238, 90, 36, 0.3);
+        }
+
+        .setup-notice {
+            background: rgba(255, 193, 7, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 2px solid #ffc107;
+        }
+
+        .setup-notice h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .setup-notice p {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .config-form {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .config-input {
+            padding: 10px;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            font-size: 14px;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .connect-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
         }
 
         .tabs {
@@ -315,12 +360,6 @@
             min-height: 100px;
         }
 
-        .file-input-wrapper {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-        }
-
         .file-input {
             width: 100%;
             padding: 12px 16px;
@@ -408,6 +447,24 @@
             opacity: 0.3;
         }
 
+        .status-indicator {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 15px;
+        }
+
+        .status-connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
         @media (max-width: 768px) {
             .dashboard-container {
                 padding: 10px;
@@ -446,20 +503,96 @@
                 margin: 10px;
                 padding: 20px;
             }
+
+            .config-form {
+                flex-direction: column;
+            }
+
+            .config-input {
+                min-width: auto;
+            }
         }
     </style>
 </head>
 <body>
     <div class="dashboard-container">
         <div class="header">
-            <h1>🏢 Dashboard</h1>
+            <div>
+                <h1>🏢 Dashboard</h1>
+                <span id="connectionStatus" class="status-indicator status-disconnected">Не підключено</span>
+            </div>
             <div class="user-info">
                 <span id="userEmail">Завантаження...</span>
-                <button class="logout-btn" onclick="logout()">Вийти</button>
+                <button class="logout-btn" onclick="logout()" style="display: none;" id="logoutBtn">Вийти</button>
             </div>
         </div>
 
-        <div class="tabs">
+        <!-- Setup Notice -->
+        <div id="setupNotice" class="setup-notice">
+            <h3>🔧 Налаштування Supabase</h3>
+            <p>Введіть ваші дані Supabase для підключення до бази даних:</p>
+            <div class="config-form">
+                <input 
+                    type="text" 
+                    id="supabaseUrl" 
+                    class="config-input" 
+                    placeholder="https://your-project.supabase.co"
+                    value="https://txfotpnmjtsxidfszufz.supabase.co"
+                >
+                <input 
+                    type="text" 
+                    id="supabaseKey" 
+                    class="config-input" 
+                    placeholder="Анонімний ключ"
+                    value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4Zm90cG5tanRzeGlkZnN6dWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4MDE5MzIsImV4cCI6MjA2OTM3NzkzMn0.wVH9gSC1GT9T1loXImfM8hnp9x5GT2dvSPumWJYAWi4"
+                >
+                <button class="connect-btn" onclick="connectSupabase()">Підключити</button>
+            </div>
+        </div>
+
+        <!-- Login Form -->
+        <div id="loginForm" class="content-section" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">Вхід в систему</h2>
+            </div>
+            <form onsubmit="login(event)">
+                <div class="form-group">
+                    <label class="form-label">Email:</label>
+                    <input type="email" class="form-input" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Пароль:</label>
+                    <input type="password" class="form-input" id="loginPassword" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="save-btn">Увійти</button>
+                    <button type="button" class="cancel-btn" onclick="showSignup()">Реєстрація</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Signup Form -->
+        <div id="signupForm" class="content-section" style="display: none;">
+            <div class="section-header">
+                <h2 class="section-title">Реєстрація</h2>
+            </div>
+            <form onsubmit="signup(event)">
+                <div class="form-group">
+                    <label class="form-label">Email:</label>
+                    <input type="email" class="form-input" id="signupEmail" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Пароль:</label>
+                    <input type="password" class="form-input" id="signupPassword" required minlength="6">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="save-btn">Зареєструватися</button>
+                    <button type="button" class="cancel-btn" onclick="showLogin()">Вже є акаунт?</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="tabs" id="mainTabs" style="display: none;">
             <button class="tab active" onclick="switchTab('businesses')">🏢 Бізнес</button>
             <button class="tab" onclick="switchTab('events')">🎉 Події</button>
             <button class="tab" onclick="switchTab('housing')">🏠 Житло</button>
@@ -467,7 +600,7 @@
         </div>
 
         <!-- Businesses Section -->
-        <div id="businesses" class="content-section active">
+        <div id="businesses" class="content-section" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">Мої бізнеси</h2>
                 <button class="add-btn" onclick="openModal('business')">
@@ -482,7 +615,7 @@
         </div>
 
         <!-- Events Section -->
-        <div id="events" class="content-section">
+        <div id="events" class="content-section" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">Мої події</h2>
                 <button class="add-btn" onclick="openModal('event')">
@@ -497,7 +630,7 @@
         </div>
 
         <!-- Housing Section -->
-        <div id="housing" class="content-section">
+        <div id="housing" class="content-section" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">Моє житло</h2>
                 <button class="add-btn" onclick="openModal('housing')">
@@ -512,7 +645,7 @@
         </div>
 
         <!-- Jobs Section -->
-        <div id="jobs" class="content-section">
+        <div id="jobs" class="content-section" style="display: none;">
             <div class="section-header">
                 <h2 class="section-title">Мої вакансії</h2>
                 <button class="add-btn" onclick="openModal('job')">
@@ -545,12 +678,7 @@
     </div>
 
     <script>
-        // Supabase configuration - ЗАМІНІТЬ НА ВАШІ ДАНІ
-        const SUPABASE_URL = 'https://txfotpnmjtsxidfszufz.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4Zm90cG5tanRzeGlkZnN6dWZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM4MDE5MzIsImV4cCI6MjA2OTM3NzkzMn0.wVH9gSC1GT9T1loXImfM8hnp9x5GT2dvSPumWJYAWi4';
-        
-        const supabase = supabase.createClient(https://txfotpnmjtsxidfszufz.supabase.co, SUPABASE_ANON_KEY);
-        
+        let supabase = null;
         let currentUser = null;
         let currentTab = 'businesses';
         let currentItem = null;
@@ -560,10 +688,10 @@
         const fieldConfigs = {
             business: [
                 { name: 'title', label: 'Назва бізнесу', type: 'text', required: true },
-                { name: 'image_url', label: 'Логотип', type: 'file', required: false },
                 { name: 'category', label: 'Категорія', type: 'text', required: true },
                 { name: 'description', label: 'Опис', type: 'textarea', required: true },
                 { name: 'phone', label: 'Телефон', type: 'tel', required: true },
+                { name: 'image_url', label: 'Зображення (URL)', type: 'url', required: false },
                 { name: 'facebook', label: 'Facebook', type: 'url', required: false },
                 { name: 'instagram', label: 'Instagram', type: 'url', required: false },
                 { name: 'google_maps', label: 'Google Maps', type: 'url', required: false }
@@ -572,45 +700,171 @@
                 { name: 'title', label: 'Назва події', type: 'text', required: true },
                 { name: 'datetime', label: 'Дата та час', type: 'datetime-local', required: true },
                 { name: 'location', label: 'Місце проведення', type: 'text', required: true },
-                { name: 'image_url', label: 'Фото', type: 'file', required: false },
                 { name: 'description', label: 'Опис події', type: 'textarea', required: true },
+                { name: 'image_url', label: 'Зображення (URL)', type: 'url', required: false },
                 { name: 'link', label: 'Посилання на деталі', type: 'url', required: false }
             ],
             housing: [
                 { name: 'type', label: 'Тип житла', type: 'select', options: ['кімната', 'квартира'], required: true },
                 { name: 'address', label: 'Адреса', type: 'text', required: true },
-                { name: 'price', label: 'Ціна', type: 'number', required: true },
+                { name: 'price', label: 'Ціна (₴)', type: 'number', required: true },
                 { name: 'description', label: 'Опис', type: 'textarea', required: true },
                 { name: 'phone', label: 'Телефон', type: 'tel', required: true },
-                { name: 'image_url', label: 'Фото житла', type: 'file', required: false }
+                { name: 'image_url', label: 'Зображення (URL)', type: 'url', required: false }
             ],
             job: [
                 { name: 'title', label: 'Назва вакансії', type: 'text', required: true },
                 { name: 'type', label: 'Тип зайнятості', type: 'text', required: true },
-                { name: 'salary', label: 'Оплата', type: 'number', required: false },
+                { name: 'salary', label: 'Оплата (₴)', type: 'number', required: false },
                 { name: 'description', label: 'Опис', type: 'textarea', required: true },
                 { name: 'contact_info', label: 'Контактні дані', type: 'text', required: true },
-                { name: 'image_url', label: 'Логотип компанії', type: 'file', required: false }
+                { name: 'image_url', label: 'Логотип компанії (URL)', type: 'url', required: false }
             ]
         };
 
-        // Initialize dashboard
-        async function init() {
+        // Connect to Supabase
+        function connectSupabase() {
+            const url = document.getElementById('supabaseUrl').value.trim();
+            const key = document.getElementById('supabaseKey').value.trim();
+            
+            if (!url || !key) {
+                alert('Будь ласка, введіть URL та ключ Supabase');
+                return;
+            }
+
+            try {
+                // Перевіряємо, чи завантажена бібліотека Supabase
+                if (typeof window.supabase === 'undefined') {
+                    throw new Error('Бібліотека Supabase не завантажена. Перевірте підключення до інтернету.');
+                }
+
+                supabase = window.supabase.createClient(url, key);
+                
+                // Тестуємо підключення
+                supabase.auth.getSession().then(({ data, error }) => {
+                    if (error && error.message.includes('Invalid API key')) {
+                        throw new Error('Неправильний API ключ');
+                    }
+                    
+                    document.getElementById('connectionStatus').textContent = 'Підключено';
+                    document.getElementById('connectionStatus').className = 'status-indicator status-connected';
+                    document.getElementById('setupNotice').style.display = 'none';
+                    document.getElementById('loginForm').style.display = 'block';
+                    
+                    // Check if user is already authenticated
+                    checkAuth();
+                }).catch(error => {
+                    console.error('Connection test error:', error);
+                    alert('Помилка підключення: ' + error.message);
+                });
+                
+            } catch (error) {
+                console.error('Connection error:', error);
+                alert('Помилка підключення до Supabase: ' + error.message);
+            }
+        }
+
+        // Check authentication status
+        async function checkAuth() {
+            if (!supabase) return;
+            
             try {
                 const { data: { user } } = await supabase.auth.getUser();
-                if (!user) {
-                    window.location.href = 'login.html';
-                    return;
+                if (user) {
+                    await showDashboard(user);
                 }
-                
-                currentUser = user;
-                document.getElementById('userEmail').textContent = user.email;
-                
-                await loadContent();
             } catch (error) {
-                console.error('Initialization error:', error);
-                alert('Помилка ініціалізації. Спробуйте перезавантажити сторінку.');
+                console.error('Auth check error:', error);
             }
+        }
+
+        // Login function
+        async function login(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
+                
+                if (error) throw error;
+                
+                await showDashboard(data.user);
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Помилка входу: ' + error.message);
+            }
+        }
+
+        // Signup function
+        async function signup(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                });
+                
+                if (error) throw error;
+                
+                alert('Реєстрація успішна! Перевірте email для підтвердження.');
+                showLogin();
+            } catch (error) {
+                console.error('Signup error:', error);
+                alert('Помилка реєстрації: ' + error.message);
+            }
+        }
+
+        // Show dashboard
+        async function showDashboard(user) {
+            currentUser = user;
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('logoutBtn').style.display = 'block';
+            
+            // Hide auth forms
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'none';
+            
+            // Show main content
+            document.getElementById('mainTabs').style.display = 'flex';
+            document.getElementById('businesses').style.display = 'block';
+            
+            // Setup database tables
+            await setupTables();
+            
+            // Load content
+            await loadContent();
+        }
+
+        // Setup database tables
+        async function setupTables() {
+            // This would typically be done via Supabase dashboard or migrations
+            // For demo purposes, we'll just show what tables should exist
+            console.log('Setting up tables (should be done via Supabase dashboard):');
+            console.log('- businesses table');
+            console.log('- events table');
+            console.log('- housing table');
+            console.log('- jobs table');
+        }
+
+        // Show login form
+        function showLogin() {
+            document.getElementById('signupForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        }
+
+        // Show signup form
+        function showSignup() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'block';
         }
 
         // Load content for all sections
@@ -656,7 +910,7 @@
                 }
             } catch (error) {
                 console.error('Error loading businesses:', error);
-                grid.innerHTML = '<p>Помилка завантаження бізнесів</p>';
+                grid.innerHTML = '<p>Помилка завантаження бізнесів. Переконайтесь, що таблиця "businesses" створена в Supabase.</p>';
             } finally {
                 loading.style.display = 'none';
             }
@@ -695,7 +949,7 @@
                 }
             } catch (error) {
                 console.error('Error loading events:', error);
-                grid.innerHTML = '<p>Помилка завантаження подій</p>';
+                grid.innerHTML = '<p>Помилка завантаження подій. Переконайтесь, що таблиця "events" створена в Supabase.</p>';
             } finally {
                 loading.style.display = 'none';
             }
@@ -734,7 +988,7 @@
                 }
             } catch (error) {
                 console.error('Error loading housing:', error);
-                grid.innerHTML = '<p>Помилка завантаження житла</p>';
+                grid.innerHTML = '<p>Помилка завантаження житла. Переконайтесь, що таблиця "housing" створена в Supabase.</p>';
             } finally {
                 loading.style.display = 'none';
             }
@@ -773,7 +1027,7 @@
                 }
             } catch (error) {
                 console.error('Error loading jobs:', error);
-                grid.innerHTML = '<p>Помилка завантаження вакансій</p>';
+                grid.innerHTML = '<p>Помилка завантаження вакансій. Переконайтесь, що таблиця "jobs" створена в Supabase.</p>';
             } finally {
                 loading.style.display = 'none';
             }
@@ -783,13 +1037,18 @@
         function createBusinessCard(business) {
             const card = document.createElement('div');
             card.className = 'item-card';
+            const imageContent = business.image_url ? 
+                `<img src="${business.image_url}" alt="${business.title}" class="item-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                 <div class="item-image" style="display: none; background: linear-gradient(45deg, #667eea, #764ba2); align-items: center; justify-content: center; color: white; font-size: 2em;">🏢</div>` :
+                `<div class="item-image" style="background: linear-gradient(45deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-size: 2em;">🏢</div>`;
+            
             card.innerHTML = `
-                ${business.image_url ? `<img src="${business.image_url}" alt="${business.title}" class="item-image">` : '<div class="item-image"></div>'}
+                ${imageContent}
                 <div class="item-title">${business.title}</div>
                 <div class="item-info">
                     <strong>Категорія:</strong> ${business.category}<br>
                     <strong>Телефон:</strong> ${business.phone}<br>
-                    <strong>Опис:</strong> ${business.description}
+                    <strong>Опис:</strong> ${business.description.substring(0, 100)}...
                 </div>
                 <div class="item-actions">
                     <button class="action-btn edit-btn" onclick="editItem('business', ${business.id})">✏️</button>
@@ -804,13 +1063,18 @@
             const card = document.createElement('div');
             card.className = 'item-card';
             const eventDate = new Date(event.datetime).toLocaleString('uk-UA');
+            const imageContent = event.image_url ? 
+                `<img src="${event.image_url}" alt="${event.title}" class="item-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                 <div class="item-image" style="display: none; background: linear-gradient(45deg, #ff6b6b, #ee5a24); align-items: center; justify-content: center; color: white; font-size: 2em;">🎉</div>` :
+                `<div class="item-image" style="background: linear-gradient(45deg, #ff6b6b, #ee5a24); display: flex; align-items: center; justify-content: center; color: white; font-size: 2em;">🎉</div>`;
+            
             card.innerHTML = `
-                ${event.image_url ? `<img src="${event.image_url}" alt="${event.title}" class="item-image">` : '<div class="item-image"></div>'}
+                ${imageContent}
                 <div class="item-title">${event.title}</div>
                 <div class="item-info">
                     <strong>Дата:</strong> ${eventDate}<br>
                     <strong>Місце:</strong> ${event.location}<br>
-                    <strong>Опис:</strong> ${event.description}
+                    <strong>Опис:</strong> ${event.description.substring(0, 100)}...
                 </div>
                 <div class="item-actions">
                     <button class="action-btn edit-btn" onclick="editItem('event', ${event.id})">✏️</button>
@@ -824,13 +1088,18 @@
         function createHousingCard(housing) {
             const card = document.createElement('div');
             card.className = 'item-card';
+            const imageContent = housing.image_url ? 
+                `<img src="${housing.image_url}" alt="${housing.type}" class="item-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                 <div class="item-image" style="display: none; background: linear-gradient(45deg, #4caf50, #45a049); align-items: center; justify-content: center; color: white; font-size: 2em;">🏠</div>` :
+                `<div class="item-image" style="background: linear-gradient(45deg, #4caf50, #45a049); display: flex; align-items: center; justify-content: center; color: white; font-size: 2em;">🏠</div>`;
+            
             card.innerHTML = `
-                ${housing.image_url ? `<img src="${housing.image_url}" alt="${housing.type}" class="item-image">` : '<div class="item-image"></div>'}
+                ${imageContent}
                 <div class="item-title">${housing.type} - ${housing.price}₴</div>
                 <div class="item-info">
                     <strong>Адреса:</strong> ${housing.address}<br>
                     <strong>Телефон:</strong> ${housing.phone}<br>
-                    <strong>Опис:</strong> ${housing.description}
+                    <strong>Опис:</strong> ${housing.description.substring(0, 100)}...
                 </div>
                 <div class="item-actions">
                     <button class="action-btn edit-btn" onclick="editItem('housing', ${housing.id})">✏️</button>
@@ -844,14 +1113,19 @@
         function createJobCard(job) {
             const card = document.createElement('div');
             card.className = 'item-card';
+            const imageContent = job.image_url ? 
+                `<img src="${job.image_url}" alt="${job.title}" class="item-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                 <div class="item-image" style="display: none; background: linear-gradient(45deg, #00d2ff, #3a7bd5); align-items: center; justify-content: center; color: white; font-size: 2em;">💼</div>` :
+                `<div class="item-image" style="background: linear-gradient(45deg, #00d2ff, #3a7bd5); display: flex; align-items: center; justify-content: center; color: white; font-size: 2em;">💼</div>`;
+            
             card.innerHTML = `
-                ${job.image_url ? `<img src="${job.image_url}" alt="${job.title}" class="item-image">` : '<div class="item-image"></div>'}
+                ${imageContent}
                 <div class="item-title">${job.title}</div>
                 <div class="item-info">
                     <strong>Тип:</strong> ${job.type}<br>
                     ${job.salary ? `<strong>Оплата:</strong> ${job.salary}₴<br>` : ''}
                     <strong>Контакт:</strong> ${job.contact_info}<br>
-                    <strong>Опис:</strong> ${job.description}
+                    <strong>Опис:</strong> ${job.description.substring(0, 100)}...
                 </div>
                 <div class="item-actions">
                     <button class="action-btn edit-btn" onclick="editItem('job', ${job.id})">✏️</button>
@@ -869,7 +1143,7 @@
             
             // Update content sections
             document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(tab).classList.add('active');
+            document.getElementById(tab).style.display = 'block';
             
             currentTab = tab;
         }
@@ -920,11 +1194,6 @@
                         opt.textContent = option;
                         input.appendChild(opt);
                     });
-                } else if (field.type === 'file') {
-                    input = document.createElement('input');
-                    input.type = 'file';
-                    input.accept = 'image/*';
-                    input.className = 'file-input';
                 } else {
                     input = document.createElement('input');
                     input.type = field.type;
@@ -936,13 +1205,12 @@
                 if (field.required) input.required = true;
                 
                 // Set existing values if editing
-                if (item && field.type !== 'file') {
+                if (item && item[field.name] !== undefined) {
                     if (field.type === 'datetime-local') {
-                        // Convert datetime to local format
                         const date = new Date(item[field.name]);
                         input.value = date.toISOString().slice(0, 16);
                     } else {
-                        input.value = item[field.name] || '';
+                        input.value = item[field.name];
                     }
                 }
                 
@@ -950,26 +1218,6 @@
                 group.appendChild(input);
                 fields.appendChild(group);
             });
-            
-            // Reset form
-            form.reset();
-            
-            // Fill form if editing
-            if (item) {
-                config.forEach(field => {
-                    if (field.type !== 'file') {
-                        const input = document.getElementById(field.name);
-                        if (input && item[field.name] !== undefined) {
-                            if (field.type === 'datetime-local') {
-                                const date = new Date(item[field.name]);
-                                input.value = date.toISOString().slice(0, 16);
-                            } else {
-                                input.value = item[field.name];
-                            }
-                        }
-                    }
-                });
-            }
             
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -984,29 +1232,6 @@
             currentType = null;
         }
 
-        // Upload file to Supabase Storage
-        async function uploadFile(file, bucket = 'images') {
-            try {
-                const fileExt = file.name.split('.').pop();
-                const fileName = `${currentUser.id}/${Date.now()}.${fileExt}`;
-                
-                const { data, error } = await supabase.storage
-                    .from(bucket)
-                    .upload(fileName, file);
-                
-                if (error) throw error;
-                
-                const { data: { publicUrl } } = supabase.storage
-                    .from(bucket)
-                    .getPublicUrl(fileName);
-                
-                return publicUrl;
-            } catch (error) {
-                console.error('Upload error:', error);
-                throw error;
-            }
-        }
-
         // Save item (add or update)
         async function saveItem(event) {
             event.preventDefault();
@@ -1018,25 +1243,11 @@
             // Prepare data object
             const config = fieldConfigs[currentType];
             for (const field of config) {
-                if (field.type === 'file') {
-                    const file = formData.get(field.name);
-                    if (file && file.size > 0) {
-                        try {
-                            data[field.name] = await uploadFile(file);
-                        } catch (error) {
-                            alert(`Помилка завантаження файлу: ${error.message}`);
-                            return;
-                        }
-                    } else if (currentItem && currentItem[field.name]) {
-                        data[field.name] = currentItem[field.name];
-                    }
+                const value = formData.get(field.name);
+                if (field.type === 'number') {
+                    data[field.name] = value ? parseFloat(value) : null;
                 } else {
-                    const value = formData.get(field.name);
-                    if (field.type === 'number') {
-                        data[field.name] = value ? parseFloat(value) : null;
-                    } else {
-                        data[field.name] = value || null;
-                    }
+                    data[field.name] = value || null;
                 }
             }
             
@@ -1157,7 +1368,14 @@
                 const { error } = await supabase.auth.signOut();
                 if (error) throw error;
                 
-                window.location.href = 'login.html';
+                // Reset UI
+                currentUser = null;
+                document.getElementById('userEmail').textContent = 'Завантаження...';
+                document.getElementById('logoutBtn').style.display = 'none';
+                document.getElementById('mainTabs').style.display = 'none';
+                document.querySelectorAll('.content-section').forEach(s => s.style.display = 'none');
+                document.getElementById('loginForm').style.display = 'block';
+                
             } catch (error) {
                 console.error('Logout error:', error);
                 alert('Помилка виходу з системи');
@@ -1172,7 +1390,14 @@
         });
 
         // Initialize when page loads
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-connect if credentials are pre-filled
+            const url = document.getElementById('supabaseUrl').value;
+            const key = document.getElementById('supabaseKey').value;
+            if (url && key) {
+                connectSupabase();
+            }
+        });
     </script>
 </body>
 </html>
