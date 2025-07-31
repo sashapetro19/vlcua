@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Робота - VLC.UA - Українці в Валенсії</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    * {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+    }
+    
+    @media (max-width: 768px) {
+      .card {
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+    }
+    
+    @media (max-width: 768px) {
+      .btn {
+        padding: 14px 20px;
+        font-size: 16px;
+        min-height: 48px;
+      }
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      color: white;
+      transform: translateY(0);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,123,255,0.3);
+    }
+    
+    .btn-secondary {
+      background: #f8f9fa;
+      color: #333;
+      border: 1px solid #dee2e6;
+    }
+    
+    .btn-secondary:hover {
+      background: #e2e6ea;
+      transform: translateY(-1px);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, #28a745, #1e7e34);
+      color: white;
+    }
+
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+    }
+
+    .btn-orange {
+      background: linear-gradient(135deg, #fd7e14, #e55a00);
+      color: white;
+    }
+
+    .btn-orange:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(253, 126, 20, 0.3);
+    }
+    
+    /* Hamburger Menu Styles */
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      padding: 12px;
+      z-index: 1001;
+      position: relative;
+      min-height: 44px;
+      min-width: 44px;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .hamburger span {
+      width: 25px;
+      height: 3px;
+      background: #333;
+      margin: 3px 0;
+      transition: 0.3s;
+      border-radius: 2px;
+    }
+    
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(-45deg) translate(-5px, 6px);
+    }
+    
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+    
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(45deg) translate(-5px, -6px);
+    }
+    
+    .side-menu {
+      position: fixed;
+      top: 0;
+      left: -320px;
+      width: 320px;
+      height: 100vh;
+      background: white;
+      z-index: 1000;
+      transition: left 0.3s ease;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      overflow-y: auto;
+    }
+
+    @media (max-width: 1024px) and (min-width: 768px) {
+      .side-menu {
+        width: 350px;
+        left: -350px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .side-menu {
+        width: 100vw;
+        left: -100vw;
+      }
+    }
+    
+    .side-menu.active {
+      left: 0;
+    }
+    
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 20px 24px;
+      color: #333;
+      text-decoration: none;
+      transition: all 0.2s;
+      border-left: 4px solid transparent;
+      min-height: 56px;
+      font-size: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .menu-item {
+        padding: 24px;
+        font-size: 18px;
+        min-height: 64px;
+      }
+    }
+    
+    .menu-item:hover {
+      background: #f8f9fa;
+      border-left-color: #007bff;
+      color: #007bff;
+    }
+
+    .menu-item.active {
+      background: #f0f8ff;
+      border-left-color: #007bff;
+      color: #007bff;
+    }
+    
+    .menu-item i {
+      margin-right: 16px;
+      width: 24px;
+      font-size: 18px;
+    }
+    
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    @media (max-width: 768px) {
+      .modal-content {
+        padding: 24px;
+        margin: 16px;
+        max-height: 85vh;
+        border-radius: 16px;
+      }
+    }
+    
+    .input {
+      width: 100%;
+      padding: 16px;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.2s;
+      min-height: 48px;
+    }
+    
+    .input:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+    }
+
+    textarea.input {
+      min-height: 120px;
+      resize: vertical;
+    }
+    
+    .job-item {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 16px;
+      border-left: 4px solid #fd7e14;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: all 0.2s;
+    }
+
+    @media (max-width: 768px) {
+      .job-item {
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 16px;
+      }
+    }
+
+    .job-item:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transform: translateY(-1px);
+    }
+
+    .job-item.employer {
+      border-left-color: #28a745;
+    }
+
+    .job-item.candidate {
+      border-left-color: #007bff;
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #28a745;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      z-index: 2000;
+      transform: translateX(400px);
+      transition: transform 0.3s;
+      box-shadow: 0 4px 12px rgba(40,167,69,0.3);
+      max-width: 320px;
+    }
+
+    @media (max-width: 768px) {
+      .notification {
+        top: 16px;
+        right: 16px;
+        left: 16px;
+        max-width: none;
+        transform: translateY(-100px);
+        text-align: center;
+      }
+      
+      .notification.show {
+        transform: translateY(0);
+      }
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.error {
+      background: #dc3545;
+      box-shadow: 0 4px 12px rgba(220,53,69,0.3);
+    }
+    
+    .tab {
+      padding: 12px 20px;
+      background: #f8f9fa;
+      border: none;
+      cursor: pointer;
+      border-radius: 8px 8px 0 0;
+      margin-right: 4px;
+      transition: all 0.2s;
+      font-size: 14px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @media (max-width: 768px) {
+      .tab {
+        flex: 1;
+        padding: 16px 8px;
+        font-size: 13px;
+        margin-right: 2px;
+        border-radius: 6px 6px 0 0;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .tabs-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      
+      .tabs-wrapper {
+        display: flex;
+        min-width: 400px;
+      }
+      
+      .tab {
+        white-space: nowrap;
+        min-width: 80px;
+      }
+    }
+    
+    .tab.active {
+      background: white;
+      border-bottom: 2px solid #fd7e14;
+      color: #fd7e14;
+    }
+
+    .salary-badge {
+      background: linear-gradient(135deg, #28a745, #20c997);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .job-type-badge {
+      background: #e9ecef;
+      color: #495057;
+      padding: 4px 8px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .urgent-badge {
+      background: linear-gradient(135deg, #dc3545, #c82333);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 600;
+      animation: pulse 2s infinite;
+    }
+
+    .remote-badge {
+      background: linear-gradient(135deg, #6f42c1, #5a32a3);
+      color: white;
+      font-size: 12px;
+    }
+
+    .filter-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .filter-chip {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      color: #495057;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-chip:hover {
+      background: #e9ecef;
+    }
+
+    .filter-chip.active {
+      background: #fd7e14;
+      color: white;
+      border-color: #fd7e14;
+    }
+
+    .search-bar {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 24px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .logo {
+      max-height: 40px;
+      width: auto;
+    }
+
+    @media (max-width: 768px) {
+      .logo {
+        max-height: 36px;
+      }
+    }
+
+    .footer-gradient {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .header-container {
+      height: 64px;
+    }
+
+    @media (max-width: 768px) {
+      .header-container {
+        height: 56px;
+      }
+    }
+
+    .action-buttons {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    @media (max-width: 480px) {
+      .action-buttons {
+        gap: 0.5rem;
+      }
+      
+      .action-buttons .btn {
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+      
+      .action-buttons .btn span {
+        display: none;
+      }
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      .card:hover {
+        transform: none;
+      }
+      
+      .btn-primary:hover {
+        transform: none;
+      }
+      
+      .job-item:hover {
+        transform: none;
+      }
+    }
+
+    @supports (padding: max(0px)) {
+      .header-container {
+        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-right: max(1rem, env(safe-area-inset-right));
+      }
+      
+      .side-menu {
+        padding-left: max(0px, env(safe-area-inset-left));
+      }
+    }
+
+    .side-menu::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .side-menu::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    
+    .side-menu::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  
+  <!-- Menu Overlay -->
+  <div id="menu-overlay" class="menu-overlay" onclick="toggleMenu()"></div>
+  
+  <!-- Side Menu -->
+  <div id="side-menu" class="side-menu">
+    <div class="p-6 border-b border-gray-200 text-center">
+      <img src="logo.png" alt="VLC.UA Logo" class="logo mx-auto mb-2" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <h2 class="text-xl font-bold text-gray-800" style="display:none;">VLC.UA</h2>
+      <p class="text-sm text-gray-600">Українці в Валенсії</p>
+    </div>
+    
+    <nav class="py-4">
+      <a href="index.html" class="menu-item">
+        <i class="fas fa-home"></i>
+        Головна
+      </a>
+      <a href="events.html" class="menu-item">
+        <i class="fas fa-calendar"></i>
+        Події
+      </a>
+      <a href="business.html" class="menu-item">
+        <i class="fas fa-store"></i>
+        Бізнес
+      </a>
+      <a href="housing.html" class="menu-item">
+        <i class="fas fa-home"></i>
+        Житло
+      </a>
+      <a href="jobs.html" class="menu-item active">
+        <i class="fas fa-briefcase"></i>
+        Робота
+      </a>
+      <div class="border-t border-gray-200 mt-4 pt-4">
+        <a href="#" class="menu-item">
+          <i class="fas fa-book"></i>
+          Корисні поради
+        </a>
+        <a href="#" class="menu-item">
+          <i class="fas fa-file-alt"></i>
+          Документи
+        </a>
+        <a href="#" class="menu-item">
+          <i class="fas fa-question-circle"></i>
+          Як зробити...
+        </a>
+        <a href="#" class="menu-item">
+          <i class="fas fa-users"></i>
+          Про спільноту
+        </a>
+        <a href="#" class="menu-item">
+          <i class="fas fa-envelope"></i>
+          Контакти
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Header -->
+  <header class="bg-white shadow-sm sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="header-container flex justify-between items-center">
+        <!-- Hamburger Menu -->
+        <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        
+        <!-- Logo -->
+        <div class="absolute left-1/2 transform -translate-x-1/2">
+          <img src="logo.png" alt="VLC.UA Logo" class="logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+          <h1 class="text-2xl font-bold text-blue-600" style="display:none;">VLC.UA</h1>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button onclick="openSearch()" class="text-gray-600 hover:text-orange-600 text-lg transition-colors p-2">
+            <i class="fas fa-search"></i>
+          </button>
+          <button onclick="openAddModal()" class="btn btn-orange">
+            <i class="fas fa-plus mr-2"></i><span>Додати</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 py-6 md:py-8">
+    
+    <!-- Hero -->
+    <section class="text-center mb-8 md:mb-12">
+      <div class="bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-2xl p-6 md:p-8 mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold mb-4">
+          <i class="fas fa-briefcase mr-3"></i>Робота в Валенсії
+        </h1>
+        <p class="text-lg md:text-xl mb-6 opacity-90 max-w-3xl mx-auto leading-relaxed">
+          Знайдіть роботу мрії або ідеального кандидата в українській спільноті Валенсії
+        </p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+          <button onclick="openSearch()" class="btn bg-white text-orange-600 hover:bg-gray-100 flex-1">
+            <i class="fas fa-search mr-2"></i>Пошук роботи
+          </button>
+          <button onclick="openAddModal()" class="btn btn-secondary bg-white bg-opacity-20 text-white hover:bg-opacity-30 flex-1">
+            <i class="fas fa-plus mr-2"></i>Додати вакансію
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Statistics -->
+    <section class="mb-8">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="text-2xl font-bold text-orange-600 mb-1" id="total-jobs">25</div>
+          <div class="text-sm text-gray-600">Всього пропозицій</div>
+        </div>
+        <div class="stat-card">
+          <div class="text-2xl font-bold text-green-600 mb-1" id="employer-count">18</div>
+          <div class="text-sm text-gray-600">Вакансії</div>
+        </div>
+        <div class="stat-card">
+          <div class="text-2xl font-bold text-blue-600 mb-1" id="candidate-count">7</div>
+          <div class="text-sm text-gray-600">Резюме</div>
+        </div>
+        <div class="stat-card">
+          <div class="text-2xl font-bold text-purple-600 mb-1" id="urgent-count">5</div>
+          <div class="text-sm text-gray-600">Терміново</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Categories -->
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-4">Популярні категорії</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="card text-center" onclick="quickFilter('ресторан')">
+          <i class="fas fa-utensils text-2xl text-orange-600 mb-2"></i>
+          <div class="font-medium">Ресторани</div>
+        </div>
+        <div class="card text-center" onclick="quickFilter('будівництво')">
+          <i class="fas fa-hard-hat text-2xl text-yellow-600 mb-2"></i>
+          <div class="font-medium">Будівництво</div>
+        </div>
+        <div class="card text-center" onclick="quickFilter('прибирання')">
+          <i class="fas fa-broom text-2xl text-green-600 mb-2"></i>
+          <div class="font-medium">Прибирання</div>
+        </div>
+        <div class="card text-center" onclick="quickFilter('IT')">
+          <i class="fas fa-laptop-code text-2xl text-blue-600 mb-2"></i>
+          <div class="font-medium">IT</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <section>
+      <div class="bg-white rounded-xl p-4 md:p-6 shadow-sm">
+        
+        <!-- Search Bar -->
+        <div class="search-bar">
+          <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+              <input type="text" id="main-search" placeholder="Пошук за професією, компанією..." 
+                     class="input" onkeypress="handleEnterSearch(event)">
+            </div>
+            <button onclick="performMainSearch()" class="btn btn-orange">
+              <i class="fas fa-search mr-2"></i>Знайти
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Chips -->
+        <div class="filter-chips">
+          <div class="filter-chip active" onclick="toggleFilter(this, 'all')">
+            <i class="fas fa-list mr-1"></i>Всі
+          </div>
+          <div class="filter-chip" onclick="toggleFilter(this, 'employer')">
+            <i class="fas fa-building mr-1"></i>Вакансії
+          </div>
+          <div class="filter-chip" onclick="toggleFilter(this, 'candidate')">
+            <i class="fas fa-user mr-1"></i>Резюме
+          </div>
+          <div class="filter-chip" onclick="toggleFilter(this, 'urgent')">
+            <i class="fas fa-exclamation-triangle mr-1"></i>Терміново
+          </div>
+          <div class="filter-chip" onclick="toggleFilter(this, 'remote')">
+            <i class="fas fa-home mr-1"></i>Віддалено
+          </div>
+        </div>
+        
+        <!-- Items List -->
+        <div id="jobs-container">
+          <!-- Sample job listings will be populated here -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modals -->
+  
+  <!-- Add Job/Resume Modal -->
+  <div id="add-modal" class="modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Додати оголошення</h2>
+        <button onclick="closeModal('add-modal')" class="text-gray-500 hover:text-gray-700 text-2xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <!-- Tabs -->
+      <div class="tabs-container mb-6">
+        <div class="tabs-wrapper">
+          <button class="tab active" onclick="switchTab(this, 'employer-form')">
+            <i class="fas fa-building mr-2"></i>Шукаю працівника
+          </button>
+          <button class="tab" onclick="switchTab(this, 'candidate-form')">
+            <i class="fas fa-user mr-2"></i>Шукаю роботу
+          </button>
+        </div>
+      </div>
+
+      <!-- Employer Form -->
+      <form id="employer-form" class="tab-content">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Назва вакансії *</label>
+            <input type="text" required class="input" placeholder="Наприклад: Офіціант у ресторан">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-2">Компанія *</label>
+            <input type="text" required class="input" placeholder="Назва вашої компанії">
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-2">Зарплата</label>
+              <input type="text" class="input" placeholder="1200-1500 €/міс">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">Тип зайнятості</label>
+              <select class="input">
+                <option>Повний день</option>
+                <option>Частковий день</option>
+                <option>Сезонна</option>
+                <option>Разова</option>
+              </select>
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-2">Опис роботи *</label>
+            <textarea required class="input" placeholder="Опишіть обов'язки, вимоги, умови праці..."></textarea>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-2">Контакти *</label>
+            <input type="text" required class="input" placeholder="Телефон або Telegram">
+          </div>
+          
+          <div class="flex items-center space-x-4">
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-2">
+              <span class="text-sm">Терміново</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-2">
+              <span class="text-sm">Віддалена робота</span>
+            </label>
+          </div>
+          
+          <div class="flex gap-4 pt-4">
+            <button type="submit" class="btn btn-success flex-1">
+              <i class="fas fa-check mr-2"></i>Опублікувати
+            </button>
+            <button type="button" onclick="closeModal('add-modal')" class="btn btn-secondary">
+              Скасувати
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Candidate Form -->
+      <form id="candidate-form" class="tab-content" style="display: none;">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Ваше ім'я *</label>
+            <input type="text" required class="input" placeholder="Ім'я та прізвище">
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-2">Професія/Спеціальність *</label>
+            <input type="text" required class="input" placeholder="Наприклад: Кухар, Будівельник, IT-спеціаліст">
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-2">Досвід роботи</label>
+              <select class="input">
+                <option>Без досвіду</option>
+                <option>До 1 року</option>
+                <option>1-3 роки</option>
+                <option>3-5 років</option>
+                <option>Більше 5 років</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-2">Бажана зарплата</label>
+              <input type="text" class="input" placeholder="1000-1300 €/міс">
+            </div>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-2">Про себе *</label>
+            <textarea required class="input" placeholder="Розкажіть про свій досвід, навички, що вмієте робити..."></textarea>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-2">Контакти *</label>
+            <input type="text" required class="input" placeholder="Телефон або Telegram">
+          </div>
+          
+          <div class="flex items-center space-x-4">
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-2">
+              <span class="text-sm">Готовий розпочати негайно</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-2">
+              <span class="text-sm">Розглядаю віддалену роботу</span>
+            </label>
+          </div>
+          
+          <div class="flex gap-4 pt-4">
+            <button type="submit" class="btn btn-primary flex-1">
+              <i class="fas fa-check mr-2"></i>Опублікувати резюме
+            </button>
+            <button type="button" onclick="closeModal('add-modal')" class="btn btn-secondary">
+              Скасувати
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Search Modal -->
+  <div id="search-modal" class="modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Розширений пошук</h2>
+        <button onclick="closeModal('search-modal')" class="text-gray-500 hover:text-gray-700 text-2xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <form class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-2">Ключові слова</label>
+          <input type="text" class="input" placeholder="Професія, навички, компанія...">
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Категорія</label>
+            <select class="input">
+              <option>Всі категорії</option>
+              <option>Ресторани/Готелі</option>
+              <option>Будівництво</option>
+              <option>Прибирання</option>
+              <option>IT/Технології</option>
+              <option>Торгівля</option>
+              <option>Логістика</option>
+              <option>Краса/Здоров'я</option>
+              <option>Освіта</option>
+              <option>Інше</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Тип зайнятості</label>
+            <select class="input">
+              <option>Будь-який</option>
+              <option>Повний день</option>
+              <option>Частковий день</option>
+              <option>Сезонна</option>
+              <option>Разова</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Зарплата від (€)</label>
+            <input type="number" class="input" placeholder="800">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Зарплата до (€)</label>
+            <input type="number" class="input" placeholder="2000">
+          </div>
+        </div>
+        
+        <div class="flex items-center space-x-4">
+          <label class="flex items-center">
+            <input type="checkbox" class="mr-2">
+            <span class="text-sm">Тільки терміново</span>
+          </label>
+          <label class="flex items-center">
+            <input type="checkbox" class="mr-2">
+            <span class="text-sm">Віддалена робота</span>
+          </label>
+        </div>
+        
+        <div class="flex gap-4 pt-4">
+          <button type="submit" class="btn btn-orange flex-1">
+            <i class="fas fa-search mr-2"></i>Знайти
+          </button>
+          <button type="button" onclick="closeModal('search-modal')" class="btn btn-secondary">
+            Скасувати
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Job Details Modal -->
+  <div id="job-details-modal" class="modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold" id="job-details-title">Деталі вакансії</h2>
+        <button onclick="closeModal('job-details-modal')" class="text-gray-500 hover:text-gray-700 text-2xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div id="job-details-content">
+        <!-- Content will be populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification -->
+  <div id="notification" class="notification">
+    <span id="notification-text"></span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer-gradient mt-12 md:mt-16 py-8 md:py-12 text-white">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        
+        <!-- About -->
+        <div class="col-span-1 md:col-span-2 lg:col-span-1">
+          <div class="flex items-center mb-4">
+            <img src="logo.png" alt="VLC.UA Logo" class="h-8 w-auto mr-3" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <h3 class="text-xl font-bold" style="display:none;">VLC.UA</h3>
+          </div>
+          <p class="text-white text-opacity-80 mb-6 leading-relaxed">
+            Найбільша українська спільнота в Валенсії. Допомагаємо знаходити роботу 
+            та працівників у нашій спільноті.
+          </p>
+          <div class="flex space-x-4">
+            <a href="#" class="text-white hover:text-yellow-300 transition-colors p-2">
+              <i class="fab fa-telegram text-2xl"></i>
+            </a>
+            <a href="#" class="text-white hover:text-yellow-300 transition-colors p-2">
+              <i class="fab fa-instagram text-2xl"></i>
+            </a>
+            <a href="#" class="text-white hover:text-yellow-300 transition-colors p-2">
+              <i class="fab fa-facebook text-2xl"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- Quick Links -->
+        <div>
+          <h4 class="font-semibold mb-4 text-lg">Швидкі посилання</h4>
+          <ul class="space-y-3 text-white text-opacity-80">
+            <li><a href="index.html" class="hover:text-yellow-300 transition-colors block py-1">Головна</a></li>
+            <li><a href="events.html" class="hover:text-yellow-300 transition-colors block py-1">Події</a></li>
+            <li><a href="business.html" class="hover:text-yellow-300 transition-colors block py-1">Бізнес</a></li>
+            <li><a href="housing.html" class="hover:text-yellow-300 transition-colors block py-1">Житло</a></li>
+          </ul>
+        </div>
+        
+        <!-- Help -->
+        <div>
+          <h4 class="font-semibold mb-4 text-lg">Допомога</h4>
+          <ul class="space-y-3 text-white text-opacity-80">
+            <li><a href="#" class="hover:text-yellow-300 transition-colors block py-1">Як знайти роботу</a></li>
+            <li><a href="#" class="hover:text-yellow-300 transition-colors block py-1">Поради для роботодавців</a></li>
+            <li><a href="#" class="hover:text-yellow-300 transition-colors block py-1">Трудові права</a></li>
+            <li><a href="#" class="hover:text-yellow-300 transition-colors block py-1">Контакти</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact Info -->
+        <div>
+          <h4 class="font-semibold mb-4 text-lg">Контакти</h4>
+          <div class="space-y-3 text-white text-opacity-80">
+            <div class="flex items-center">
+              <i class="fas fa-map-marker-alt mr-3"></i>
+              <span>Валенсія, Іспанія</span>
+            </div>
+            <div class="flex items-center">
+              <i class="fas fa-envelope mr-3"></i>
+              <span>info@vlc.ua</span>
+            </div>
+            <div class="flex items-center">
+              <i class="fab fa-telegram mr-3"></i>
+              <span>@vlc_valencia</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="border-t border-white border-opacity-20 mt-8 pt-8 text-center">
+        <p class="text-white text-opacity-60">
+          © 2024 VLC.UA - Українці в Валенсії. Всі права захищені.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Sample data for job listings
+    const jobsData = [
+      {
+        id: 1,
+        type: 'employer',
+        title: 'Офіціант/Офіціантка',
+        company: 'Ресторан "Paella Valenciana"',
+        salary: '1200-1400 €/міс',
+        jobType: 'Повний день',
+        description: 'Шукаємо досвідченого офіціанта для роботи в центрі Валенсії. Знання іспанської мови обов\'язкове.',
+        contact: '+34 123 456 789',
+        urgent: false,
+        remote: false,
+        date: '2024-01-15',
+        category: 'ресторан'
+      },
+      {
+        id: 2,
+        type: 'candidate',
+        title: 'Кухар з досвідом',
+        company: 'Олександр Петренко',
+        salary: '1300-1600 €/міс',
+        jobType: 'Повний день',
+        description: '5 років досвіду роботи кухарем в українських та європейських ресторанах. Володію всіма видами кухні.',
+        contact: '@oleksandr_cook',
+        urgent: true,
+        remote: false,
+        date: '2024-01-14',
+        category: 'ресторан'
+      },
+      {
+        id: 3,
+        type: 'employer',
+        title: 'Будівельник',
+        company: 'Construction Valencia SL',
+        salary: '1500-1800 €/міс',
+        jobType: 'Повний день',
+        description: 'Потрібен досвідчений будівельник для роботи на об\'єктах в Валенсії та околицях.',
+        contact: '+34 987 654 321',
+        urgent: true,
+        remote: false,
+        date: '2024-01-13',
+        category: 'будівництво'
+      },
+      {
+        id: 4,
+        type: 'employer',
+        title: 'Прибиральниця офісів',
+        company: 'CleanPro Valencia',
+        salary: '900-1100 €/міс',
+        jobType: 'Частковий день',
+        description: 'Прибирання офісних приміщень у центрі міста. Гнучкий графік, можливо поєднувати з іншою роботою.',
+        contact: '+34 555 123 456',
+        urgent: false,
+        remote: false,
+        date: '2024-01-12',
+        category: 'прибирання'
+      },
+      {
+        id: 5,
+        type: 'candidate',
+        title: 'Frontend Developer',
+        company: 'Марія Коваленко',
+        salary: '2000-2500 €/міс',
+        jobType: 'Повний день',
+        description: 'React, Vue.js, TypeScript. 3 роки комерційного досвіду. Розглядаю як офісну, так і віддалену роботу.',
+        contact: '@maria_frontend',
+        urgent: false,
+        remote: true,
+        date: '2024-01-11',
+        category: 'IT'
+      }
+    ];
+
+    let currentFilter = 'all';
+    let filteredJobs = [...jobsData];
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+      displayJobs(jobsData);
+      updateStats();
+    });
+
+    // Menu toggle functionality
+    function toggleMenu() {
+      const menu = document.getElementById('side-menu');
+      const overlay = document.getElementById('menu-overlay');
+      const hamburger = document.getElementById('hamburger');
+      
+      menu.classList.toggle('active');
+      overlay.classList.toggle('active');
+      hamburger.classList.toggle('active');
+    }
+
+    // Modal functions
+    function openAddModal() {
+      document.getElementById('add-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function openSearch() {
+      document.getElementById('search-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Tab switching
+    function switchTab(tabElement, formId) {
+      // Remove active class from all tabs
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+      // Add active class to clicked tab
+      tabElement.classList.add('active');
+      
+      // Hide all forms
+      document.querySelectorAll('.tab-content').forEach(form => form.style.display = 'none');
+      // Show selected form
+      document.getElementById(formId).style.display = 'block';
+    }
+
+    // Filter functionality
+    function toggleFilter(chipElement, filterType) {
+      // Remove active class from all chips
+      document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
+      // Add active class to clicked chip
+      chipElement.classList.add('active');
+      
+      currentFilter = filterType;
+      applyFilter();
+    }
+
+    function applyFilter() {
+      let filtered = [...jobsData];
+      
+      if (currentFilter !== 'all') {
+        filtered = filtered.filter(job => {
+          switch (currentFilter) {
+            case 'employer':
+              return job.type === 'employer';
+            case 'candidate':
+              return job.type === 'candidate';
+            case 'urgent':
+              return job.urgent;
+            case 'remote':
+              return job.remote;
+            default:
+              return true;
+          }
+        });
+      }
+      
+      filteredJobs = filtered;
+      displayJobs(filtered);
+    }
+
+    // Quick filter by category
+    function quickFilter(category) {
+      const searchInput = document.getElementById('main-search');
+      searchInput.value = category;
+      performMainSearch();
+    }
+
+    // Search functionality
+    function performMainSearch() {
+      const searchTerm = document.getElementById('main-search').value.toLowerCase();
+      
+      if (!searchTerm) {
+        displayJobs(jobsData);
+        return;
+      }
+      
+      const filtered = jobsData.filter(job => 
+        job.title.toLowerCase().includes(searchTerm) ||
+        job.company.toLowerCase().includes(searchTerm) ||
+        job.description.toLowerCase().includes(searchTerm) ||
+        job.category.toLowerCase().includes(searchTerm)
+      );
+      
+      displayJobs(filtered);
+      
+      if (filtered.length === 0) {
+        showNotification('Нічого не знайдено за вашим запитом', 'error');
+      }
+    }
+
+    function handleEnterSearch(event) {
+      if (event.key === 'Enter') {
+        performMainSearch();
+      }
+    }
+
+    // Display jobs
+    function displayJobs(jobs) {
+      const container = document.getElementById('jobs-container');
+      
+      if (jobs.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12">
+            <i class="fas fa-search text-4xl text-gray-400 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">Нічого не знайдено</h3>
+            <p class="text-gray-500">Спробуйте змінити критерії пошуку</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = jobs.map(job => `
+        <div class="job-item ${job.type}" onclick="showJobDetails(${job.id})">
+          <div class="flex justify-between items-start mb-3">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <h3 class="text-lg font-semibold text-gray-800">${job.title}</h3>
+                ${job.urgent ? '<span class="urgent-badge">ТЕРМІНОВО</span>' : ''}
+                ${job.remote ? '<span class="remote-badge job-type-badge">Віддалено</span>' : ''}
+              </div>
+              <p class="text-gray-600 mb-2">
+                <i class="fas ${job.type === 'employer' ? 'fa-building' : 'fa-user'} mr-2"></i>
+                ${job.company}
+              </p>
+            </div>
+            <div class="text-right">
+              <div class="salary-badge mb-2">${job.salary}</div>
+              <div class="job-type-badge">${job.jobType}</div>
+            </div>
+          </div>
+          
+          <p class="text-gray-700 mb-4 line-clamp-2">${job.description}</p>
+          
+          <div class="flex justify-between items-center">
+            <div class="flex items-center text-sm text-gray-500">
+              <i class="fas fa-calendar mr-1"></i>
+              ${formatDate(job.date)}
+            </div>
+            <button class="btn btn-orange btn-sm" onclick="event.stopPropagation(); contactPerson('${job.contact}')">
+              <i class="fas fa-phone mr-1"></i>
+              Зв'язатися
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Show job details
+    function showJobDetails(jobId) {
+      const job = jobsData.find(j => j.id === jobId);
+      if (!job) return;
+      
+      const modal = document.getElementById('job-details-modal');
+      const title = document.getElementById('job-details-title');
+      const content = document.getElementById('job-details-content');
+      
+      title.textContent = job.title;
+      content.innerHTML = `
+        <div class="space-y-4">
+          <div class="flex items-center gap-2">
+            <i class="fas ${job.type === 'employer' ? 'fa-building' : 'fa-user'} text-gray-500"></i>
+            <span class="font-semibold">${job.company}</span>
+            ${job.urgent ? '<span class="urgent-badge ml-2">ТЕРМІНОВО</span>' : ''}
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <strong>Зарплата:</strong> ${job.salary}
+            </div>
+            <div>
+              <strong>Тип зайнятості:</strong> ${job.jobType}
+            </div>
+          </div>
+          
+          <div>
+            <strong>Опис:</strong>
+            <p class="mt-2 text-gray-700">${job.description}</p>
+          </div>
+          
+          <div>
+            <strong>Контакти:</strong> ${job.contact}
+          </div>
+          
+          <div class="flex gap-4 pt-4">
+            <button onclick="contactPerson('${job.contact}')" class="btn btn-success flex-1">
+              <i class="fas fa-phone mr-2"></i>Зв'язатися
+            </button>
+            <button onclick="closeModal('job-details-modal')" class="btn btn-secondary">
+              Закрити
+            </button>
+          </div>
+        </div>
+      `;
+      
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Contact person
+    function contactPerson(contact) {
+      if (contact.startsWith('@')) {
+        window.open(`https://t.me/${contact.substring(1)}`, '_blank');
+      } else if (contact.startsWith('+')) {
+        window.open(`tel:${contact}`, '_blank');
+      } else {
+        showNotification('Контакт скопійовано в буфер обміну');
+        navigator.clipboard.writeText(contact);
+      }
+    }
+
+    // Update statistics
+    function updateStats() {
+      const totalJobs = jobsData.length;
+      const employerCount = jobsData.filter(job => job.type === 'employer').length;
+      const candidateCount = jobsData.filter(job => job.type === 'candidate').length;
+      const urgentCount = jobsData.filter(job => job.urgent).length;
+      
+      document.getElementById('total-jobs').textContent = totalJobs;
+      document.getElementById('employer-count').textContent = employerCount;
+      document.getElementById('candidate-count').textContent = candidateCount;
+      document.getElementById('urgent-count').textContent = urgentCount;
+    }
+
+    // Notification system
+    function showNotification(message, type = 'success') {
+      const notification = document.getElementById('notification');
+      const text = document.getElementById('notification-text');
+      
+      text.textContent = message;
+      notification.className = `notification ${type}`;
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    // Utility functions
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffTime = Math.abs(now - date);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 1) return 'Вчора';
+      if (diffDays < 7) return `${diffDays} дні тому`;
+      return date.toLocaleDateString('uk-UA');
+    }
+
+    // Form submission handlers
+    document.getElementById('employer-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      showNotification('Вакансію успішно додано!');
+      closeModal('add-modal');
+      // Here you would typically send the data to a server
+    });
+
+    document.getElementById('candidate-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      showNotification('Резюме успішно додано!');
+      closeModal('add-modal');
+      // Here you would typically send the data to a server
+    });
+
+    // Close modals when clicking outside
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          closeModal(modal.id);
+        }
+      });
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal.active').forEach(modal => {
+          closeModal(modal.id);
+        });
+        
+        if (document.getElementById('side-menu').classList.contains('active')) {
+          toggleMenu();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
