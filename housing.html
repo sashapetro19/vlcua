@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Житло - VLC.UA | Українці в Валенсії</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    * {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+    }
+    
+    /* Mobile responsive cards */
+    @media (max-width: 768px) {
+      .card {
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.2s;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+    }
+    
+    /* Mobile button adjustments */
+    @media (max-width: 768px) {
+      .btn {
+        padding: 14px 20px;
+        font-size: 16px;
+        min-height: 48px;
+      }
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      color: white;
+      transform: translateY(0);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,123,255,0.3);
+    }
+    
+    .btn-secondary {
+      background: #f8f9fa;
+      color: #333;
+      border: 1px solid #dee2e6;
+    }
+    
+    .btn-secondary:hover {
+      background: #e2e6ea;
+      transform: translateY(-1px);
+    }
+
+    .btn-cta {
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      color: white;
+      font-size: 18px;
+      padding: 16px 32px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(124,58,237,0.3);
+    }
+
+    .btn-cta:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(124,58,237,0.4);
+    }
+
+    /* Mobile CTA button */
+    @media (max-width: 768px) {
+      .btn-cta {
+        font-size: 16px;
+        padding: 16px 24px;
+      }
+    }
+    
+    /* Hamburger Menu Styles */
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      padding: 12px;
+      z-index: 1001;
+      position: relative;
+      min-height: 44px;
+      min-width: 44px;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .hamburger span {
+      width: 25px;
+      height: 3px;
+      background: #333;
+      margin: 3px 0;
+      transition: 0.3s;
+      border-radius: 2px;
+    }
+    
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(-45deg) translate(-5px, 6px);
+    }
+    
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+    }
+    
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(45deg) translate(-5px, -6px);
+    }
+    
+    .side-menu {
+      position: fixed;
+      top: 0;
+      left: -320px;
+      width: 320px;
+      height: 100vh;
+      background: white;
+      z-index: 1000;
+      transition: left 0.3s ease;
+      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+      overflow-y: auto;
+    }
+
+    @media (max-width: 1024px) and (min-width: 768px) {
+      .side-menu {
+        width: 350px;
+        left: -350px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .side-menu {
+        width: 100vw;
+        left: -100vw;
+      }
+    }
+    
+    .side-menu.active {
+      left: 0;
+    }
+    
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+    
+    .menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 20px 24px;
+      color: #333;
+      text-decoration: none;
+      transition: all 0.2s;
+      border-left: 4px solid transparent;
+      min-height: 56px;
+      font-size: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .menu-item {
+        padding: 24px;
+        font-size: 18px;
+        min-height: 64px;
+      }
+    }
+    
+    .menu-item:hover {
+      background: #f8f9fa;
+      border-left-color: #007bff;
+      color: #007bff;
+    }
+    
+    .menu-item.active {
+      background: #f8f9fa;
+      border-left-color: #7c3aed;
+      color: #7c3aed;
+    }
+    
+    .menu-item i {
+      margin-right: 16px;
+      width: 24px;
+      font-size: 18px;
+    }
+    
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .modal.active {
+      display: flex;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    @media (max-width: 768px) {
+      .modal-content {
+        padding: 24px;
+        margin: 16px;
+        max-height: 85vh;
+        border-radius: 16px;
+      }
+    }
+    
+    .input {
+      width: 100%;
+      padding: 16px;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.2s;
+      min-height: 48px;
+    }
+    
+    .input:focus {
+      outline: none;
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+    }
+
+    textarea.input {
+      min-height: 120px;
+      resize: vertical;
+    }
+    
+    .housing-item {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      border-left: 4px solid #7c3aed;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: all 0.3s;
+    }
+
+    @media (max-width: 768px) {
+      .housing-item {
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 20px;
+      }
+    }
+
+    .housing-item:hover {
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+      transform: translateY(-2px);
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #28a745;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      z-index: 2000;
+      transform: translateX(400px);
+      transition: transform 0.3s;
+      box-shadow: 0 4px 12px rgba(40,167,69,0.3);
+      max-width: 320px;
+    }
+
+    @media (max-width: 768px) {
+      .notification {
+        top: 16px;
+        right: 16px;
+        left: 16px;
+        max-width: none;
+        transform: translateY(-100px);
+        text-align: center;
+      }
+      
+      .notification.show {
+        transform: translateY(0);
+      }
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.error {
+      background: #dc3545;
+      box-shadow: 0 4px 12px rgba(220,53,69,0.3);
+    }
+    
+    .filter-section {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    @media (max-width: 768px) {
+      .filter-section {
+        padding: 20px;
+        border-radius: 20px;
+      }
+    }
+
+    .filter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .filter-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+      }
+    }
+
+    .price-badge {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      display: inline-block;
+    }
+
+    .type-badge {
+      background: rgba(124,58,237,0.1);
+      color: #7c3aed;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .district-tag {
+      background: rgba(59,130,246,0.1);
+      color: #3b82f6;
+      padding: 4px 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .hero-gradient {
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #ec4899 100%);
+    }
+
+    .stats-card {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 20px;
+      text-center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    @media (max-width: 768px) {
+      .stats-card {
+        padding: 16px;
+      }
+    }
+
+    .quick-filter-btn {
+      background: rgba(124,58,237,0.1);
+      color: #7c3aed;
+      border: 1px solid rgba(124,58,237,0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .quick-filter-btn:hover {
+      background: #7c3aed;
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .quick-filter-btn.active {
+      background: #7c3aed;
+      color: white;
+      box-shadow: 0 4px 12px rgba(124,58,237,0.3);
+    }
+
+    .logo {
+      max-height: 40px;
+      width: auto;
+    }
+
+    @media (max-width: 768px) {
+      .logo {
+        max-height: 36px;
+      }
+    }
+
+    .footer-gradient {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .header-container {
+      height: 64px;
+    }
+
+    @media (max-width: 768px) {
+      .header-container {
+        height: 56px;
+      }
+    }
+
+    .action-buttons {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    @media (max-width: 480px) {
+      .action-buttons {
+        gap: 0.5rem;
+      }
+      
+      .action-buttons .btn {
+        padding: 12px 16px;
+        font-size: 14px;
+      }
+      
+      .action-buttons .btn span {
+        display: none;
+      }
+    }
+
+    /* Touch improvements */
+    @media (hover: none) and (pointer: coarse) {
+      .card:hover {
+        transform: none;
+      }
+      
+      .btn-primary:hover {
+        transform: none;
+      }
+      
+      .housing-item:hover {
+        transform: none;
+      }
+    }
+
+    /* Safe area adjustments */
+    @supports (padding: max(0px)) {
+      .header-container {
+        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-right: max(1rem, env(safe-area-inset-right));
+      }
+      
+      .side-menu {
+        padding-left: max(0px, env(safe-area-inset-left));
+      }
+    }
+
+    .side-menu::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .side-menu::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    
+    .side-menu::-webkit-scrollbar-thumb {
+      background: #c1c1c1;
+      border-radius: 3px;
+    }
+
+    .image-placeholder {
+      background: linear-gradient(45deg, #f3f4f6, #e5e7eb);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+      font-size: 18px;
+      min-height: 120px;
+    }
+
+    @media (max-width: 768px) {
+      .image-placeholder {
+        min-height: 100px;
+        font-size: 16px;
+      }
+    }
+
+    .feature-icon {
+      width: 20px;
+      height: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(124,58,237,0.1);
+      border-radius: 50%;
+      color: #7c3aed;
+      font-size: 10px;
+      margin-right: 8px;
+    }
+
+    .contact-btn {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .contact-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  
+  <!-- Menu Overlay -->
+  <div id="menu-overlay" class="menu-overlay" onclick="toggleMenu()"></div>
+  
+  <!-- Side Menu -->
+  <div id="side-menu" class="side-menu">
+    <div class="p-6 border-b border-gray-200 text-center">
+      <img src="logo.png" alt="VLC.UA Logo" class="logo mx-auto mb-2" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <h2 class="text-xl font-bold text-gray-800" style="display:none;">VLC.UA</h2>
+      <p class="text-sm text-gray-600">Українці в Валенсії</p>
+    </div>
+    
+    <nav class="py-4">
+      <a href="index.html" class="menu-item">
+        <i class="fas fa-home"></i>
+        Головна
+      </a>
+      <a href="events.html" class="menu-item">
+        <i class="fas fa-calendar"></i>
+        Події
+      </a>
+      <a href="business.html" class="menu-item">
+        <i class="fas fa-store"></i>
+        Бізнес
+      </a>
+      <a href="housing.html" class="menu-item active">
+        <i class="fas fa-home"></i>
+        Житло
+      </a>
+      <a href="jobs.html" class="menu-item">
+        <i class="fas fa-briefcase"></i>
+        Робота
+      </a>
+      <div class="border-t border-gray-200 mt-4 pt-4">
+        <a href="#" class="menu-item">
+          <i class="fas fa-book"></i>
+          Корисні поради
+        </a>
+        <a href="#" class="menu-item">
+          <i class="fas fa-file-alt"></i>
+          Документи
+        </a>
+        <a href="#" class="menu-item">
+          <i class="fas fa-question-circle"></i>
+          Як зробити...
+        </a>
+        <a href="#" class="menu-item">
+          <i class="fas fa-users"></i>
+          Про спільноту
+        </a>
+        <a href="#" class="menu-item">
+          <i class="fas fa-envelope"></i>
+          Контакти
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Header -->
+  <header class="bg-white shadow-sm sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="header-container flex justify-between items-center">
+        <!-- Hamburger Menu -->
+        <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        
+        <!-- Logo -->
+        <div class="absolute left-1/2 transform -translate-x-1/2">
+          <img src="logo.png" alt="VLC.UA Logo" class="logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+          <h1 class="text-2xl font-bold text-purple-600" style="display:none;">VLC.UA</h1>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button onclick="openSearch()" class="text-gray-600 hover:text-purple-600 text-lg transition-colors p-2">
+            <i class="fas fa-search"></i>
+          </button>
+          <button onclick="openAddModal()" class="btn btn-primary">
+            <i class="fas fa-plus mr-2"></i><span>Додати</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 py-6 md:py-8">
+    
+    <!-- Hero Section -->
+    <section class="hero-gradient rounded-2xl p-6 md:p-12 text-white mb-8 relative overflow-hidden">
+      <div class="relative z-10">
+        <div class="text-center mb-8">
+          <h1 class="text-3xl md:text-5xl font-bold mb-4">
+            Житло у Валенсії 🏠
+          </h1>
+          <p class="text-lg md:text-xl opacity-90 mb-8 max-w-3xl mx-auto leading-relaxed">
+            Знайдіть ідеальне житло або здайте свою нерухомість в найактивнішій українській спільноті
+          </p>
+          
+          <div class="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+            <button onclick="scrollToListings()" class="btn-cta flex-1">
+              <i class="fas fa-search mr-2"></i>Шукати житло
+            </button>
+            <button onclick="openAddModal()" class="bg-white bg-opacity-20 text-white px-6 py-3 rounded-lg hover:bg-opacity-30 transition-all flex-1">
+              <i class="fas fa-plus mr-2"></i>Здати житло
+            </button>
+          </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+          <div class="stats-card">
+            <div class="text-2xl md:text-3xl font-bold text-purple-600 mb-2" id="total-listings">127</div>
+            <div class="text-sm text-gray-600">Активних оголошень</div>
+          </div>
+          <div class="stats-card">
+            <div class="text-2xl md:text-3xl font-bold text-green-600 mb-2">€420</div>
+            <div class="text-sm text-gray-600">Середня ціна за кімнату</div>
+          </div>
+          <div class="stats-card">
+            <div class="text-2xl md:text-3xl font-bold text-blue-600 mb-2">95%</div>
+            <div class="text-sm text-gray-600">Успішних угод</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Background decoration -->
+      <div class="absolute top-0 left-0 w-full h-full opacity-10">
+        <div class="absolute top-10 left-10 w-20 h-20 bg-white rounded-full"></div>
+        <div class="absolute top-32 right-20 w-16 h-16 bg-white rounded-full"></div>
+        <div class="absolute bottom-20 left-1/4 w-12 h-12 bg-white rounded-full"></div>
+        <div class="absolute bottom-10 right-10 w-24 h-24 bg-white rounded-full"></div>
+      </div>
+    </section>
+
+    <!-- Quick Filters -->
+    <section class="mb-8">
+      <div class="filter-section">
+        <h3 class="text-lg font-semibold mb-4 flex items-center">
+          <i class="fas fa-filter text-purple-600 mr-2"></i>
+          Швидкі фільтри
+        </h3>
+        
+        <div class="flex flex-wrap gap-3 mb-6">
+          <button class="quick-filter-btn active" onclick="setQuickFilter('all', this)">
+            <i class="fas fa-th mr-2"></i>Всі
+          </button>
+          <button class="quick-filter-btn" onclick="setQuickFilter('rent', this)">
+            <i class="fas fa-key mr-2"></i>Оренда
+          </button>
+          <button class="quick-filter-btn" onclick="setQuickFilter('sale', this)">
+            <i class="fas fa-tag mr-2"></i>Продаж
+          </button>
+          <button class="quick-filter-btn" onclick="setQuickFilter('room', this)">
+            <i class="fas fa-bed mr-2"></i>Кімната
+          </button>
+          <button class="quick-filter-btn" onclick="setQuickFilter('apartment', this)">
+            <i class="fas fa-building mr-2"></i>Квартира
+          </button>
+          <button class="quick-filter-btn" onclick="setQuickFilter('cheap', this)">
+            <i class="fas fa-euro-sign mr-2"></i>До 400€
+          </button>
+        </div>
+
+        <!-- Advanced Filters -->
+        <div class="filter-grid">
+          <div>
+            <label class="block text-sm font-medium mb-2">Тип житла</label>
+            <select id="type-filter" class="input" onchange="applyFilters()">
+              <option value="">Всі типи</option>
+              <option value="room">Кімната</option>
+              <option value="apartment">Квартира</option>
+              <option value="studio">Студія</option>
+              <option value="house">Будинок</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-2">Район</label>
+            <select id="district-filter" class="input" onchange="applyFilters()">
+              <option value="">Всі райони</option>
+              <option value="centro">Centro</option>
+              <option value="ruzafa">Ruzafa</option>
+              <option value="benimaclet">Benimaclet</option>
+              <option value="algiros">Algirós</option>
+              <option value="poblats">Poblats Marítims</option>
+              <option value="campanar">Campanar</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-2">Ціна до (€)</label>
+            <select id="price-filter" class="input" onchange="applyFilters()">
+              <option value="">Будь-яка</option>
+              <option value="300">300€</option>
+              <option value="400">400€</option>
+              <option value="500">500€</option>
+              <option value="600">600€</option>
+              <option value="800">800€</option>
+              <option value="1000">1000€</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-2">Операція</label>
+            <select id="operation-filter" class="input" onchange="applyFilters()">
+              <option value="">Всі</option>
+              <option value="rent">Оренда</option>
+              <option value="sale">Продаж</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 mt-6">
+          <button onclick="applyFilters()" class="btn btn-primary flex-1 sm:flex-none">
+            <i class="fas fa-search mr-2"></i>Застосувати фільтри
+          </button>
+          <button onclick="clearFilters()" class="btn btn-secondary flex-1 sm:flex-none">
+            <i class="fas fa-times mr-2"></i>Очистити
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Listings Section -->
+    <section id="listings-section">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">
+          Актуальні оголошення <span id="results-count" class="text-lg font-normal text-gray-600">(127)</span>
+        </h2>
+        
+        <div class="flex items-center gap-2">
+          <label class="text-sm text-gray-600">Сортування:</label>
+          <select id="sort-select" class="input py-2 px-3 min-h-0" onchange="sortListings()">
+            <option value="date">За датою</option>
+            <option value="price-low">Ціна: спочатку дешевші</option>
+            <option value="price-high">Ціна: спочатку дорожчі</option>
+            <option value="popularity">За популярністю</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Listings Container -->
+      <div id="listings-container">
+        <!-- Sample listings will be populated here -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Add Listing Modal -->
+  <div id="add-modal" class="modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Додати оголошення</h2>
+        <button onclick="closeAddModal()" class="text-gray-500 hover:text-gray-700 text-2xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <form id="add-listing-form" onsubmit="submitListing(event)">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Тип операції *</label>
+            <select id="add-operation" class="input" required>
+              <option value="">Оберіть тип</option>
+              <option value="rent">Оренда</option>
+              <option value="sale">Продаж</option>
+            </select>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-2">Тип житла *</label>
+            <select id="add-type" class="input" required>
+              <option value="">Оберіть тип</option>
+              <option value="room">Кімната</option>
+              <option value="apartment">Квартира</option>
+              <option value="studio">Студія</option>
+              <option value="house">Будинок</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Ціна (€) *</label>
+            <input type="number" id="add-price" class="input" placeholder="Введіть ціну" required>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-2">Район *</label>
+            <select id="add-district" class="input" required>
+              <option value="">Оберіть район</option>
+              <option value="centro">Centro</option>
+              <option value="ruzafa">Ruzafa</option>
+              <option value="benimaclet">Benimaclet</option>
+              <option value="algiros">Algirós</option>
+              <option value="poblats">Poblats Marítims</option>
+              <option value="campanar">Campanar</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-2">Заголовок *</label>
+          <input type="text" id="add-title" class="input" placeholder="Наприклад: Затишна кімната в центрі" required>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium mb-2">Опис *</label>
+          <textarea id="add-description" class="input" placeholder="Детальний опис житла, зручності, умови..." required></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Ваше ім'я *</label>
+            <input type="text" id="add-name" class="input" placeholder="Як до вас звертатися" required>
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium mb-2">Телефон *</label>
+            <input type="tel" id="add-phone" class="input" placeholder="+34 XXX XXX XXX" required>
+          </div>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-sm font-medium mb-2">Email</label>
+          <input type="email" id="add-email" class="input" placeholder="your@email.com">
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <button type="submit" class="btn btn-primary flex-1">
+            <i class="fas fa-check mr-2"></i>Опублікувати
+          </button>
+          <button type="button" onclick="closeAddModal()" class="btn btn-secondary flex-1">
+            <i class="fas fa-times mr-2"></i>Скасувати
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Search Modal -->
+  <div id="search-modal" class="modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Пошук житла</h2>
+        <button onclick="closeSearch()" class="text-gray-500 hover:text-gray-700 text-2xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="mb-6">
+        <input type="text" id="search-input" class="input" placeholder="Введіть ключові слова..." onkeyup="handleSearchKeyup(event)">
+      </div>
+      
+      <div class="flex gap-3">
+        <button onclick="performSearch()" class="btn btn-primary flex-1">
+          <i class="fas fa-search mr-2"></i>Шукати
+        </button>
+        <button onclick="closeSearch()" class="btn btn-secondary">
+          <i class="fas fa-times mr-2"></i>Скасувати
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification -->
+  <div id="notification" class="notification">
+    <span id="notification-text"></span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer-gradient text-white py-8 mt-12">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center mb-4">
+            <img src="logo.png" alt="VLC.UA" class="logo mr-3" onerror="this.style.display='none'">
+            <h3 class="text-xl font-bold">VLC.UA</h3>
+          </div>
+          <p class="text-sm opacity-90">Українська спільнота у Валенсії. Разом ми сильніші!</p>
+        </div>
+        
+        <div>
+          <h4 class="font-semibold mb-4">Розділи</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="index.html" class="opacity-90 hover:opacity-100">Головна</a></li>
+            <li><a href="events.html" class="opacity-90 hover:opacity-100">Події</a></li>
+            <li><a href="business.html" class="opacity-90 hover:opacity-100">Бізнес</a></li>
+            <li><a href="housing.html" class="opacity-90 hover:opacity-100">Житло</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="font-semibold mb-4">Корисно</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#" class="opacity-90 hover:opacity-100">Поради новачкам</a></li>
+            <li><a href="#" class="opacity-90 hover:opacity-100">Документи</a></li>
+            <li><a href="#" class="opacity-90 hover:opacity-100">Медицина</a></li>
+            <li><a href="#" class="opacity-90 hover:opacity-100">Освіта</a></li>
+          </ul>
+        </div>
+        
+        <div>
+          <h4 class="font-semibold mb-4">Контакти</h4>
+          <div class="space-y-2 text-sm">
+            <div class="flex items-center">
+              <i class="fab fa-telegram mr-2"></i>
+              <span class="opacity-90">@vlc_ua</span>
+            </div>
+            <div class="flex items-center">
+              <i class="fas fa-envelope mr-2"></i>
+              <span class="opacity-90">hello@vlc.ua</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="border-t border-white border-opacity-20 mt-8 pt-8 text-center text-sm opacity-90">
+        <p>&copy; 2024 VLC.UA - Українці в Валенсії. Всі права захищені.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Sample housing data
+    let housingsData = [
+      {
+        id: 1,
+        title: "Затишна кімната в Ruzafa",
+        operation: "rent",
+        type: "room",
+        price: 380,
+        district: "ruzafa",
+        description: "Світла кімната в самому серці модного району Ruzafa. Поруч метро, кафе, ресторани. Є WiFi, кондиціонер, спільна кухня.",
+        features: ["WiFi", "Кондиціонер", "Пральна машина", "Спільна кухня"],
+        contact: {
+          name: "Олена",
+          phone: "+34 666 123 456",
+          email: "olena@example.com"
+        },
+        date: "2024-01-15",
+        views: 45
+      },
+      {
+        id: 2,
+        title: "Студія біля пляжу",
+        operation: "rent",
+        type: "studio",
+        price: 650,
+        district: "poblats",
+        description: "Новозбудована студія в 5 хвилинах від пляжу Malvarosa. Сучасний ремонт, вся техніка, тераса з видом на море.",
+        features: ["Тераса", "Вид на море", "Нова техніка", "Близько до пляжу"],
+        contact: {
+          name: "Андрій",
+          phone: "+34 677 987 654",
+          email: "andrey@example.com"
+        },
+        date: "2024-01-20",
+        views: 89
+      },
+      {
+        id: 3,
+        title: "Квартира в Centro",
+        operation: "sale",
+        type: "apartment",
+        price: 180000,
+        district: "centro",
+        description: "3-х кімнатна квартира у історичному центрі. Високі стелі, оригінальна плитка, балкон. Ідеально для інвестицій.",
+        features: ["3 кімнати", "Балкон", "Історичний центр", "Інвестиційна"],
+        contact: {
+          name: "Марія",
+          phone: "+34 688 345 678",
+          email: "maria@example.com"
+        },
+        date: "2024-01-18",
+        views: 156
+      },
+      {
+        id: 4,
+        title: "Кімната для студента в Benimaclet",
+        operation: "rent",
+        type: "room",
+        price: 320,
+        district: "benimaclet",
+        description: "Ідеально для студентів! Поруч з університетом, метро лінія 3. Тиха вулиця, всі зручності, інтернет включено.",
+        features: ["Поруч університет", "Метро лінія 3", "Тихо", "Інтернет включено"],
+        contact: {
+          name: "Віктор",
+          phone: "+34 699 456 789",
+          email: "viktor@example.com"
+        },
+        date: "2024-01-22",
+        views: 67
+      },
+      {
+        id: 5,
+        title: "Сучасна квартира в Algirós",
+        operation: "rent",
+        type: "apartment",
+        price: 850,
+        district: "algiros",
+        description: "2-х кімнатна квартира з сучасним ремонтом. Кондиціонер, посудомийка, великий балкон. Паркомісце включено.",
+        features: ["2 кімнати", "Сучасний ремонт", "Паркомісце", "Кондиціонер"],
+        contact: {
+          name: "Ірина",
+          phone: "+34 611 234 567",
+          email: "irina@example.com"
+        },
+        date: "2024-01-25",
+        views: 34
+      },
+      {
+        id: 6,
+        title: "Будинок з садом в Campanar",
+        operation: "sale",
+        type: "house",
+        price: 320000,
+        district: "campanar",
+        description: "Двоповерховий будинок з невеликим садом. 4 кімнати, 2 ванні, гараж. Тихий район, добре сполучення з центром.",
+        features: ["4 кімнати", "Сад", "Гараж", "2 ванні кімнати"],
+        contact: {
+          name: "Сергій",
+          phone: "+34 622 345 678",
+          email: "sergiy@example.com"
+        },
+        date: "2024-01-28",
+        views: 78
+      }
+    ];
+
+    let filteredData = [...housingsData];
+    let currentFilters = {};
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', function() {
+      renderListings();
+      updateStats();
+    });
+
+    // Menu functions
+    function toggleMenu() {
+      const menu = document.getElementById('side-menu');
+      const overlay = document.getElementById('menu-overlay');
+      const hamburger = document.getElementById('hamburger');
+      
+      menu.classList.toggle('active');
+      overlay.classList.toggle('active');
+      hamburger.classList.toggle('active');
+    }
+
+    // Modal functions
+    function openAddModal() {
+      document.getElementById('add-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeAddModal() {
+      document.getElementById('add-modal').classList.remove('active');
+      document.body.style.overflow = 'auto';
+      document.getElementById('add-listing-form').reset();
+    }
+
+    function openSearch() {
+      document.getElementById('search-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => {
+        document.getElementById('search-input').focus();
+      }, 100);
+    }
+
+    function closeSearch() {
+      document.getElementById('search-modal').classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Scroll to listings
+    function scrollToListings() {
+      document.getElementById('listings-section').scrollIntoView({ 
+        behavior: 'smooth' 
+      });
+    }
+
+    // Quick filters
+    function setQuickFilter(filter, button) {
+      // Remove active class from all buttons
+      document.querySelectorAll('.quick-filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Add active class to clicked button
+      button.classList.add('active');
+      
+      // Clear other filters
+      clearFiltersForm();
+      
+      // Apply quick filter
+      switch(filter) {
+        case 'all':
+          currentFilters = {};
+          break;
+        case 'rent':
+          currentFilters = { operation: 'rent' };
+          break;
+        case 'sale':
+          currentFilters = { operation: 'sale' };
+          break;
+        case 'room':
+          currentFilters = { type: 'room' };
+          break;
+        case 'apartment':
+          currentFilters = { type: 'apartment' };
+          break;
+        case 'cheap':
+          currentFilters = { maxPrice: 400 };
+          break;
+      }
+      
+      applyFiltersToData();
+    }
+
+    // Clear filters
+    function clearFilters() {
+      currentFilters = {};
+      clearFiltersForm();
+      
+      // Reset quick filter buttons
+      document.querySelectorAll('.quick-filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelector('.quick-filter-btn').classList.add('active');
+      
+      applyFiltersToData();
+    }
+
+    function clearFiltersForm() {
+      document.getElementById('type-filter').value = '';
+      document.getElementById('district-filter').value = '';
+      document.getElementById('price-filter').value = '';
+      document.getElementById('operation-filter').value = '';
+    }
+
+    // Apply filters
+    function applyFilters() {
+      const typeFilter = document.getElementById('type-filter').value;
+      const districtFilter = document.getElementById('district-filter').value;
+      const priceFilter = document.getElementById('price-filter').value;
+      const operationFilter = document.getElementById('operation-filter').value;
+      
+      currentFilters = {};
+      
+      if (typeFilter) currentFilters.type = typeFilter;
+      if (districtFilter) currentFilters.district = districtFilter;
+      if (priceFilter) currentFilters.maxPrice = parseInt(priceFilter);
+      if (operationFilter) currentFilters.operation = operationFilter;
+      
+      // Reset quick filter buttons
+      document.querySelectorAll('.quick-filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      applyFiltersToData();
+    }
+
+    function applyFiltersToData() {
+      filteredData = housingsData.filter(item => {
+        if (currentFilters.type && item.type !== currentFilters.type) return false;
+        if (currentFilters.district && item.district !== currentFilters.district) return false;
+        if (currentFilters.operation && item.operation !== currentFilters.operation) return false;
+        if (currentFilters.maxPrice && item.price > currentFilters.maxPrice) return false;
+        return true;
+      });
+      
+      renderListings();
+      updateResultsCount();
+    }
+
+    // Search functionality
+    function handleSearchKeyup(event) {
+      if (event.key === 'Enter') {
+        performSearch();
+      }
+    }
+
+    function performSearch() {
+      const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
+      
+      if (!searchTerm) {
+        filteredData = [...housingsData];
+      } else {
+        filteredData = housingsData.filter(item => {
+          return item.title.toLowerCase().includes(searchTerm) ||
+                 item.description.toLowerCase().includes(searchTerm) ||
+                 item.district.toLowerCase().includes(searchTerm);
+        });
+      }
+      
+      renderListings();
+      updateResultsCount();
+      closeSearch();
+      
+      if (searchTerm) {
+        showNotification(`Знайдено ${filteredData.length} результатів для "${searchTerm}"`);
+      }
+    }
+
+    // Sort listings
+    function sortListings() {
+      const sortBy = document.getElementById('sort-select').value;
+      
+      switch(sortBy) {
+        case 'date':
+          filteredData.sort((a, b) => new Date(b.date) - new Date(a.date));
+          break;
+        case 'price-low':
+          filteredData.sort((a, b) => a.price - b.price);
+          break;
+        case 'price-high':
+          filteredData.sort((a, b) => b.price - a.price);
+          break;
+        case 'popularity':
+          filteredData.sort((a, b) => b.views - a.views);
+          break;
+      }
+      
+      renderListings();
+    }
+
+    // Render listings
+    function renderListings() {
+      const container = document.getElementById('listings-container');
+      
+      if (filteredData.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12">
+            <i class="fas fa-search text-4xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-600 mb-2">Нічого не знайдено</h3>
+            <p class="text-gray-500 mb-6">Спробуйте змінити параметри пошуку</p>
+            <button onclick="clearFilters()" class="btn btn-primary">
+              <i class="fas fa-refresh mr-2"></i>Скинути фільтри
+            </button>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = filteredData.map(item => `
+        <div class="housing-item" onclick="openContactModal(${item.id})">
+          <div class="flex flex-col lg:flex-row gap-6">
+            <div class="lg:w-1/3">
+              <div class="image-placeholder">
+                <i class="fas fa-image"></i>
+              </div>
+            </div>
+            
+            <div class="lg:w-2/3">
+              <div class="flex flex-wrap items-start justify-between mb-3">
+                <div>
+                  <h3 class="text-xl font-bold text-gray-900 mb-2">${item.title}</h3>
+                  <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <span class="type-badge">${getTypeLabel(item.type)}</span>
+                    <span class="district-tag">${getDistrictLabel(item.district)}</span>
+                    <span class="text-sm text-gray-500">
+                      <i class="fas fa-eye mr-1"></i>${item.views} переглядів
+                    </span>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <div class="price-badge text-lg">
+                    €${item.price}${item.operation === 'rent' ? '/міс' : ''}
+                  </div>
+                  <div class="text-sm text-gray-500 mt-1">
+                    ${item.operation === 'rent' ? 'Оренда' : 'Продаж'}
+                  </div>
+                </div>
+              </div>
+              
+              <p class="text-gray-600 mb-4 line-clamp-3">${item.description}</p>
+              
+              <div class="flex flex-wrap gap-2 mb-4">
+                ${item.features.map(feature => `
+                  <span class="inline-flex items-center text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded">
+                    <span class="feature-icon"><i class="fas fa-check"></i></span>
+                    ${feature}
+                  </span>
+                `).join('')}
+              </div>
+              
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div class="text-sm text-gray-500">
+                  <i class="fas fa-calendar mr-1"></i>
+                  Опубліковано ${formatDate(item.date)}
+                </div>
+                <div class="flex gap-2">
+                  <a href="tel:${item.contact.phone}" class="contact-btn" onclick="event.stopPropagation()">
+                    <i class="fas fa-phone mr-2"></i>Телефонувати
+                  </a>
+                  <button class="contact-btn" onclick="event.stopPropagation(); shareListing(${item.id})">
+                    <i class="fas fa-share mr-2"></i>Поділитися
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Submit new listing
+    function submitListing(event) {
+      event.preventDefault();
+      
+      const formData = {
+        operation: document.getElementById('add-operation').value,
+        type: document.getElementById('add-type').value,
+        price: parseInt(document.getElementById('add-price').value),
+        district: document.getElementById('add-district').value,
+        title: document.getElementById('add-title').value,
+        description: document.getElementById('add-description').value,
+        contact: {
+          name: document.getElementById('add-name').value,
+          phone: document.getElementById('add-phone').value,
+          email: document.getElementById('add-email').value
+        }
+      };
+      
+      // Simulate adding to database
+      const newListing = {
+        id: housingsData.length + 1,
+        ...formData,
+        features: ["Нове оголошення"],
+        date: new Date().toISOString().split('T')[0],
+        views: 0
+      };
+      
+      housingsData.unshift(newListing);
+      filteredData = [...housingsData];
+      
+      renderListings();
+      updateStats();
+      closeAddModal();
+      
+      showNotification('Оголошення успішно додано!');
+      
+      // Scroll to top of listings
+      setTimeout(() => {
+        scrollToListings();
+      }, 500);
+    }
+
+    // Contact modal (simplified)
+    function openContactModal(id) {
+      const listing = housingsData.find(item => item.id === id);
+      if (listing) {
+        // Increment views
+        listing.views++;
+        renderListings();
+        
+        // Show contact info (in real app this would be a proper modal)
+        alert(`Контакти:\n${listing.contact.name}\nТелефон: ${listing.contact.phone}\nEmail: ${listing.contact.email || 'Не вказано'}`);
+      }
+    }
+
+    // Share listing
+    function shareListing(id) {
+      const listing = housingsData.find(item => item.id === id);
+      if (listing && navigator.share) {
+        navigator.share({
+          title: listing.title,
+          text: listing.description,
+          url: window.location.href + '#listing-' + id
+        });
+      } else {
+        // Fallback: copy to clipboard
+        const url = window.location.href + '#listing-' + id;
+        navigator.clipboard.writeText(url).then(() => {
+          showNotification('Посилання скопійовано!');
+        });
+      }
+    }
+
+    // Utility functions
+    function getTypeLabel(type) {
+      const labels = {
+        room: 'Кімната',
+        apartment: 'Квартира', 
+        studio: 'Студія',
+        house: 'Будинок'
+      };
+      return labels[type] || type;
+    }
+
+    function getDistrictLabel(district) {
+      const labels = {
+        centro: 'Centro',
+        ruzafa: 'Ruzafa',
+        benimaclet: 'Benimaclet',
+        algiros: 'Algirós',
+        poblats: 'Poblats Marítims',
+        campanar: 'Campanar'
+      };
+      return labels[district] || district;
+    }
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffTime = Math.abs(now - date);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 1) return 'вчора';
+      if (diffDays < 7) return `${diffDays} днів тому`;
+      if (diffDays < 30) return `${Math.ceil(diffDays / 7)} тижнів тому`;
+      return date.toLocaleDateString('uk-UA');
+    }
+
+    function updateStats() {
+      document.getElementById('total-listings').textContent = housingsData.length;
+      
+      // Calculate average price for rooms
+      const rooms = housingsData.filter(item => item.type === 'room' && item.operation === 'rent');
+      if (rooms.length > 0) {
+        const avgPrice = Math.round(rooms.reduce((sum, room) => sum + room.price, 0) / rooms.length);
+        document.querySelector('.stats-card:nth-child(2) .text-2xl').textContent = `€${avgPrice}`;
+      }
+    }
+
+    function updateResultsCount() {
+      document.getElementById('results-count').textContent = `(${filteredData.length})`;
+    }
+
+    function showNotification(message, isError = false) {
+      const notification = document.getElementById('notification');
+      const text = document.getElementById('notification-text');
+      
+      text.textContent = message;
+      notification.className = `notification ${isError ? 'error' : ''} show`;
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    // Close modals on escape key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeAddModal();
+        closeSearch();
+        
+        // Close menu if open
+        const menu = document.getElementById('side-menu');
+        if (menu.classList.contains('active')) {
+          toggleMenu();
+        }
+      }
+    });
+
+    // Close menu when clicking on overlay
+    document.getElementById('menu-overlay').addEventListener('click', toggleMenu);
+  </script>
+</body>
+</html>
