@@ -1,0 +1,2464 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Що? Як? Чому? - VLC.UA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    * {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    body {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* === CORE STYLES === */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    .glass-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+    
+    @media (max-width: 768px) {
+      .glass-card {
+        padding: 20px;
+        border-radius: 24px;
+      }
+      
+      .glass-card:active {
+        transform: scale(0.98);
+        transition: transform 0.1s;
+      }
+    }
+    
+    /* === BUTTONS === */
+    .btn {
+      padding: 14px 28px;
+      border-radius: 14px;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      color: white;
+      box-shadow: 0 8px 24px rgba(0, 122, 255, 0.25);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0, 122, 255, 0.35);
+    }
+    
+    .btn-secondary {
+      background: rgba(142, 142, 147, 0.12);
+      color: #1C1C1E;
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+      .btn {
+        padding: 16px 24px;
+        min-height: 52px;
+        border-radius: 16px;
+      }
+      
+      .btn:active {
+        transform: scale(0.95);
+      }
+    }
+    
+    /* === NAVIGATION === */
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      padding: 14px;
+      z-index: 1001;
+      position: relative;
+      min-height: 48px;
+      min-width: 48px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+    
+    .hamburger span {
+      width: 26px;
+      height: 3px;
+      background: #1C1C1E;
+      margin: 3px 0;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      border-radius: 2px;
+    }
+    
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(45deg) translate(6px, 6px);
+      background: #007AFF;
+    }
+    
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+      transform: scale(0);
+    }
+    
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(6px, -6px);
+      background: #007AFF;
+    }
+    
+    .side-menu {
+      position: fixed;
+      top: 0;
+      left: -380px;
+      width: 380px;
+      height: 100vh;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      z-index: 1000;
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+      overflow-y: auto;
+    }
+    
+    @media (max-width: 768px) {
+      .side-menu {
+        width: 85vw;
+        left: -85vw;
+        border-radius: 0 24px 24px 0;
+      }
+    }
+    
+    .side-menu.active {
+      left: 0;
+    }
+    
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+    }
+    
+    .menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .menu-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 60px 24px 32px;
+      text-align: center;
+      position: relative;
+      color: white;
+    }
+    
+    .menu-close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 20px 24px;
+      color: #1C1C1E;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+      font-size: 17px;
+      font-weight: 500;
+    }
+    
+    .menu-item:hover {
+      background: rgba(0, 122, 255, 0.05);
+      border-left-color: #007AFF;
+      color: #007AFF;
+      transform: translateX(8px);
+    }
+    
+    .menu-item i {
+      margin-right: 16px;
+      width: 24px;
+      font-size: 18px;
+    }
+    
+    /* === CONTENT CARDS === */
+    .item-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+      backdrop-filter: blur(30px);
+      border-radius: 24px;
+      padding: 32px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .item-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 100%;
+      background: var(--category-color, linear-gradient(180deg, #007AFF, #5856D6));
+      transition: width 0.3s ease;
+    }
+    
+    .item-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15);
+    }
+    
+    .item-card:hover::before {
+      width: 8px;
+    }
+    
+    @media (max-width: 768px) {
+      .item-card {
+        padding: 24px;
+        border-radius: 28px;
+      }
+    }
+    
+    /* === IMPROVED MOBILE FILTERS === */
+    .filters-container {
+      position: relative;
+      margin-bottom: 24px;
+    }
+    
+    .filters-desktop {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      padding-bottom: 8px;
+    }
+    
+    .filters-mobile {
+      display: none;
+    }
+    
+    .tab {
+      padding: 12px 20px;
+      background: rgba(142, 142, 147, 0.1);
+      border: none;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      font-size: 15px;
+      font-weight: 500;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8E8E93;
+      white-space: nowrap;
+    }
+    
+    .tab.active {
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+      transform: translateY(-1px);
+    }
+    
+    /* Mobile Filter Styles */
+    @media (max-width: 768px) {
+      .filters-desktop {
+        display: none;
+      }
+      
+      .filters-mobile {
+        display: block;
+      }
+      
+      .mobile-filter-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(20px);
+        border-radius: 16px;
+        padding: 16px 20px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+      
+      .mobile-filter-header:hover {
+        background: rgba(255, 255, 255, 0.95);
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      }
+      
+      .current-filter {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        color: #007AFF;
+      }
+      
+      .filter-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(30px);
+        border-radius: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        z-index: 100;
+        margin-top: 8px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      }
+      
+      .filter-dropdown.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+      
+      .filter-option {
+        padding: 16px 20px;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 16px;
+        color: #1C1C1E;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+      }
+      
+      .filter-option:last-child {
+        border-bottom: none;
+        border-radius: 0 0 20px 20px;
+      }
+      
+      .filter-option:first-child {
+        border-radius: 20px 20px 0 0;
+      }
+      
+      .filter-option:hover,
+      .filter-option.active {
+        background: linear-gradient(135deg, rgba(0, 122, 255, 0.1), rgba(88, 86, 214, 0.1));
+        color: #007AFF;
+      }
+      
+      .filter-option .badge {
+        margin-left: auto;
+        background: rgba(0, 122, 255, 0.1);
+        color: #007AFF;
+        padding: 4px 8px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      
+      .filter-option.active .badge {
+        background: #007AFF;
+        color: white;
+      }
+      
+      /* Quick Actions for Mobile - HIDDEN */
+      .mobile-quick-actions {
+        display: none; /* Приховано на мобільних пристроях */
+      }
+    }
+    
+    /* Smooth animations for filter changes */
+    .filter-transition {
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    /* Enhanced visual feedback */
+    @media (max-width: 768px) {
+      .tab:active,
+      .filter-option:active,
+      .quick-action-btn:active {
+        transform: scale(0.98);
+      }
+    }
+    
+    /* === MODALS === */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .modal.active {
+      display: flex;
+      opacity: 1;
+    }
+    
+    .modal-content {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(40px);
+      border-radius: 24px;
+      padding: 32px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    .modal.active .modal-content {
+      transform: scale(1);
+    }
+    
+    /* === FORMS === */
+    .input {
+      width: 100%;
+      padding: 16px 20px;
+      border: 2px solid rgba(142, 142, 147, 0.2);
+      border-radius: 14px;
+      font-size: 17px;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      transition: all 0.3s ease;
+      min-height: 52px;
+      -webkit-appearance: none;
+    }
+    
+    .input:focus {
+      outline: none;
+      border-color: #007AFF;
+      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+      background: rgba(255, 255, 255, 0.95);
+    }
+    
+    /* === NOTIFICATIONS === */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(52, 199, 89, 0.95);
+      backdrop-filter: blur(20px);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 16px;
+      z-index: 2000;
+      transform: translateX(400px);
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: 0 8px 32px rgba(52, 199, 89, 0.3);
+      max-width: 320px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.error {
+      background: rgba(255, 59, 48, 0.95);
+      box-shadow: 0 8px 32px rgba(255, 59, 48, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+      .notification {
+        top: 16px;
+        right: 16px;
+        left: 16px;
+        max-width: none;
+        transform: translateY(-100px);
+        text-align: center;
+        border-radius: 20px;
+      }
+      
+      .notification.show {
+        transform: translateY(0);
+      }
+    }
+    
+    /* === HERO === */
+    .hero-title {
+      font-size: 3.5rem;
+      line-height: 1.1;
+      font-weight: 800;
+      background: linear-gradient(135deg, #1C1C1E, #007AFF);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2.8rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .hero-title {
+        font-size: 2.2rem;
+      }
+    }
+    
+    /* === QA SYSTEM === */
+    .qa-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+      backdrop-filter: blur(30px);
+      border-radius: 24px;
+      padding: 28px 32px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* === AUTH RESTRICTIONS === */
+    .auth-required-overlay {
+      background: rgba(248, 250, 252, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      border: 2px dashed rgba(0, 122, 255, 0.3);
+      margin-top: 16px;
+    }
+    
+    .auth-required-text {
+      color: #6B7280;
+      margin-bottom: 16px;
+      font-size: 15px;
+    }
+    
+    .btn-disabled {
+      background: rgba(142, 142, 147, 0.2);
+      color: #8E8E93;
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    
+    .btn-disabled:hover {
+      transform: none;
+      box-shadow: none;
+    }
+    
+    /* === FILE UPLOAD === */
+    .file-upload-area {
+      border: 2px dashed rgba(0, 122, 255, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      background: rgba(0, 122, 255, 0.02);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .file-upload-area:hover {
+      border-color: #007AFF;
+      background: rgba(0, 122, 255, 0.05);
+    }
+    
+    .file-upload-area.dragover {
+      border-color: #007AFF;
+      background: rgba(0, 122, 255, 0.1);
+      transform: scale(1.02);
+    }
+    
+    .file-preview {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(52, 199, 89, 0.1);
+      border: 1px solid rgba(52, 199, 89, 0.3);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-top: 12px;
+    }
+    
+    .file-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #34C759;
+      font-size: 14px;
+    }
+    
+    .file-remove {
+      background: rgba(255, 59, 48, 0.1);
+      border: 1px solid rgba(255, 59, 48, 0.3);
+      color: #FF3B30;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .file-remove:hover {
+      background: rgba(255, 59, 48, 0.2);
+    }
+    
+    .url-input-group {
+      position: relative;
+    }
+    
+    .url-validation {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+    }
+    
+    .url-validation.valid {
+      color: #34C759;
+    }
+    
+    .url-validation.invalid {
+      color: #FF3B30;
+    }
+    
+    .question-attachments {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .attachment-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0, 122, 255, 0.1);
+      border: 1px solid rgba(0, 122, 255, 0.2);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 13px;
+      color: #007AFF;
+    }
+    
+    .qa-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, #007AFF, #5856D6);
+      transition: width 0.3s ease;
+    }
+    
+    .qa-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+    }
+    
+    .qa-card:hover::before {
+      width: 6px;
+    }
+    
+    .qa-card.hot::before {
+      background: linear-gradient(180deg, #FF3B30, #FF2D92);
+    }
+    
+    .qa-card.trending::before {
+      background: linear-gradient(180deg, #FF9500, #FF6347);
+    }
+    
+    .qa-card.resolved::before {
+      background: linear-gradient(180deg, #34C759, #30B756);
+    }
+    
+    .hot-badge {
+      background: linear-gradient(135deg, #FF3B30, #FF2D92);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .trending-badge {
+      background: linear-gradient(135deg, #FF9500, #FF6347);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .resolved-badge {
+      background: linear-gradient(135deg, #34C759, #30B756);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .new-badge {
+      background: linear-gradient(135deg, #5856D6, #AF52DE);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .answer-form {
+      background: rgba(247, 250, 252, 0.8);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 16px;
+      border: 1px solid rgba(226, 232, 240, 0.6);
+    }
+    
+    .answer-item {
+      background: rgba(248, 250, 252, 0.7);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      border-left: 4px solid #34C759;
+      transition: all 0.3s ease;
+    }
+    
+    .answer-item:hover {
+      background: rgba(248, 250, 252, 0.9);
+      transform: translateX(4px);
+    }
+    
+    .rating-system {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    
+    .vote-btn {
+      background: rgba(142, 142, 147, 0.1);
+      border: 1px solid rgba(142, 142, 147, 0.2);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .vote-btn:hover {
+      background: rgba(0, 122, 255, 0.1);
+      border-color: #007AFF;
+      color: #007AFF;
+    }
+    
+    .vote-btn.active {
+      background: #007AFF;
+      color: white;
+      border-color: #007AFF;
+    }
+    
+    @media (max-width: 768px) {
+      .qa-card {
+        padding: 20px 24px;
+        border-radius: 20px;
+        margin-bottom: 16px;
+      }
+      
+      .answer-form {
+        padding: 16px;
+        border-radius: 14px;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  
+  <!-- Overlay -->
+  <div id="menu-overlay" class="menu-overlay" onclick="UIManager.toggleMenu()"></div>
+  
+  <!-- Side Menu -->
+  <div id="side-menu" class="side-menu">
+    <div class="menu-header">
+      <button class="menu-close-btn" onclick="UIManager.toggleMenu()">
+        <i class="fas fa-times"></i>
+      </button>
+      
+      <img src="logo.png" alt="VLC.UA Logo" class="h-12 w-auto mx-auto mb-4 filter brightness-0 invert" 
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <h2 class="text-2xl font-bold" style="display:none;">VLC.UA</h2>
+      <p class="opacity-80">Українці в Валенсії</p>
+    </div>
+    
+    <nav class="py-6">
+      <a href="index.html" class="menu-item">
+        <i class="fas fa-home"></i>
+        Головна
+      </a>
+      <a href="#" class="menu-item">
+        <i class="fas fa-calendar"></i>
+        Події
+      </a>
+      <a href="#" class="menu-item">
+        <i class="fas fa-store"></i>
+        Бізнес
+      </a>
+      <a href="#" class="menu-item">
+        <i class="fas fa-home"></i>
+        Житло
+      </a>
+      <a href="#" class="menu-item">
+        <i class="fas fa-briefcase"></i>
+        Робота
+      </a>
+      
+      <div class="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent mx-6 my-6"></div>
+      
+      <a href="#" class="menu-item">
+        <i class="fas fa-book"></i>
+        Корисні поради
+      </a>
+      <a href="#" class="menu-item">
+        <i class="fas fa-file-alt"></i>
+        Документи
+      </a>
+      <a href="#" class="menu-item">
+        <i class="fas fa-question-circle"></i>
+        Як зробити...
+      </a>
+      <a href="ask.html" class="menu-item" style="background: rgba(0, 122, 255, 0.05); border-left-color: #007AFF; color: #007AFF;">
+        <i class="fas fa-question-circle"></i>
+        Питання і відповіді
+      </a>
+      <a href="#" class="menu-item">
+        <i class="fas fa-users"></i>
+        Про спільноту
+      </a>
+      <a href="#" class="menu-item">
+        <i class="fas fa-envelope"></i>
+        Контакти
+      </a>
+    </nav>
+  </div>
+
+  <!-- Header -->
+  <header class="bg-white bg-opacity-80 backdrop-blur-xl sticky top-0 z-40 border-b border-gray-200 border-opacity-20">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="h-16 md:h-20 flex justify-between items-center">
+        <!-- Hamburger -->
+        <div class="hamburger" id="hamburger" onclick="UIManager.toggleMenu()">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        
+        <!-- Logo -->
+        <div class="absolute left-1/2 transform -translate-x-1/2">
+          <img src="logo.png" alt="VLC.UA Logo" class="h-10 md:h-12 w-auto transition-transform hover:scale-105" 
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+          <h1 class="text-2xl font-bold text-blue-600" style="display:none;">VLC.UA</h1>
+        </div>
+        
+        <!-- Search -->
+        <button onclick="UIManager.openSearch()" class="p-3 rounded-xl bg-gray-100 hover:bg-gray-200 transition-all">
+          <i class="fas fa-search text-gray-600"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 py-6 md:py-8">
+    
+    <!-- Hero -->
+    <section class="text-center mb-8 md:mb-12">
+      <h2 class="hero-title font-bold mb-4">
+        Що? Як? Чому?
+      </h2>
+      <p class="text-xl text-gray-600 mb-8 font-medium">
+        Задавайте питання, діліться знаннями та знаходьте відповіді разом з нашою спільнотою
+      </p>
+      
+      <div class="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+        <button onclick="UIManager.openQuestionModal()" class="btn btn-primary flex-1">
+          <i class="fas fa-plus mr-2"></i>Задати питання
+        </button>
+        <button onclick="UIManager.openSearch()" class="btn btn-secondary flex-1">
+          <i class="fas fa-search mr-2"></i>Пошук
+        </button>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="mb-8 md:mb-12">
+      <div class="glass-card">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div class="text-center">
+            <div class="text-3xl font-bold text-blue-600" id="total-questions">127</div>
+            <div class="text-sm text-gray-600">Питань</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-green-600" id="total-answers">342</div>
+            <div class="text-sm text-gray-600">Відповідей</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-purple-600" id="active-users">89</div>
+            <div class="text-sm text-gray-600">Активних</div>
+          </div>
+          <div class="text-center">
+            <div class="text-3xl font-bold text-orange-600" id="resolved-percent">94%</div>
+            <div class="text-sm text-gray-600">Вирішено</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <section>
+      <div class="glass-card">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl md:text-3xl font-bold text-gray-900 flex items-center">
+            <i class="fas fa-question-circle text-blue-600 mr-3"></i>
+            Питання і відповіді
+          </h2>
+          <span class="text-sm text-gray-500 font-medium bg-gray-100 px-3 py-1 rounded-full">
+            Оновлюється в реальному часі
+          </span>
+        </div>
+        
+        <!-- Filters Section -->
+        <div class="filters-container">
+          <!-- Desktop Filters -->
+          <div class="filters-desktop" id="desktop-filters">
+            <button class="tab active" onclick="QAManager.switchTab('all', this)" data-filter="all">
+              <i class="fas fa-list mr-2"></i>Всі
+            </button>
+            <button class="tab" onclick="QAManager.switchTab('hot', this)" data-filter="hot">
+              🔥 Гарячі
+            </button>
+            <button class="tab" onclick="QAManager.switchTab('trending', this)" data-filter="trending">
+              📈 Популярні
+            </button>
+            <button class="tab" onclick="QAManager.switchTab('new', this)" data-filter="new">
+              ✨ Нові
+            </button>
+            <button class="tab" onclick="QAManager.switchTab('resolved', this)" data-filter="resolved">
+              ✅ Вирішені
+            </button>
+            <button class="tab" onclick="QAManager.switchTab('unanswered', this)" data-filter="unanswered">
+              ❓ Без відповідей
+            </button>
+          </div>
+          
+          <!-- Mobile Filters -->
+          <div class="filters-mobile">
+            <!-- Dropdown Filter - тільки dropdown без швидких кнопок -->
+            <div class="mobile-filter-header" onclick="MobileFilters.toggleDropdown()">
+              <div class="current-filter" id="current-filter">
+                <i class="fas fa-list"></i>
+                <span>Всі питання</span>
+              </div>
+              <i class="fas fa-chevron-down transition-transform duration-300" id="dropdown-arrow"></i>
+            </div>
+            
+            <div class="filter-dropdown" id="filter-dropdown">
+              <button class="filter-option active" onclick="MobileFilters.selectFilter('all', this)" data-filter="all">
+                <i class="fas fa-list"></i>
+                <span>Всі питання</span>
+                <span class="badge" id="badge-all">127</span>
+              </button>
+              <button class="filter-option" onclick="MobileFilters.selectFilter('hot', this)" data-filter="hot">
+                <span class="text-lg">🔥</span>
+                <span>Гарячі питання</span>
+                <span class="badge" id="badge-hot">8</span>
+              </button>
+              <button class="filter-option" onclick="MobileFilters.selectFilter('trending', this)" data-filter="trending">
+                <span class="text-lg">📈</span>
+                <span>Популярні</span>
+                <span class="badge" id="badge-trending">15</span>
+              </button>
+              <button class="filter-option" onclick="MobileFilters.selectFilter('new', this)" data-filter="new">
+                <span class="text-lg">✨</span>
+                <span>Нові питання</span>
+                <span class="badge" id="badge-new">23</span>
+              </button>
+              <button class="filter-option" onclick="MobileFilters.selectFilter('resolved', this)" data-filter="resolved">
+                <span class="text-lg">✅</span>
+                <span>Вирішені</span>
+                <span class="badge" id="badge-resolved">67</span>
+              </button>
+              <button class="filter-option" onclick="MobileFilters.selectFilter('unanswered', this)" data-filter="unanswered">
+                <span class="text-lg">❓</span>
+                <span>Без відповідей</span>
+                <span class="badge" id="badge-unanswered">14</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- QA List -->
+        <div id="qa-container">
+          <!-- QA items will be populated here -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-12 md:mt-16 py-12 md:py-16 text-white relative overflow-hidden" 
+          style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute inset-0" style="background-image: radial-gradient(circle at 20% 80%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px); background-size: 60px 60px, 40px 40px;"></div>
+    </div>
+    
+    <div class="max-w-6xl mx-auto px-4 relative z-10">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+        
+        <!-- About -->
+        <div class="col-span-1 md:col-span-2 lg:col-span-1">
+          <div class="flex items-center mb-6">
+            <img src="logo.png" alt="VLC.UA Logo" class="h-10 w-auto mr-3 filter brightness-0 invert" 
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <h3 class="text-2xl font-bold" style="display:none;">VLC.UA</h3>
+          </div>
+          <p class="text-white text-opacity-90 mb-8 leading-relaxed text-lg">
+            Найбільша українська спільнота в Валенсії. Допомагаємо адаптуватися, 
+            знаходити житло, роботу та нових друзів.
+          </p>
+          <div class="flex space-x-4">
+            <a href="https://t.me/vlcua24" class="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white hover:bg-opacity-30 transition-all">
+              <i class="fab fa-telegram text-xl"></i>
+            </a>
+            <a href="https://www.instagram.com/vlc.ua" class="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white hover:bg-opacity-30 transition-all">
+              <i class="fab fa-instagram text-xl"></i>
+            </a>
+            <a href="#" class="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white hover:bg-opacity-30 transition-all">
+              <i class="fab fa-facebook text-xl"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- Quick Links -->
+        <div>
+          <h4 class="font-bold mb-6 text-xl">Швидкі посилання</h4>
+          <ul class="space-y-4 text-white text-opacity-80">
+            <li><a href="index.html" class="hover:text-white transition-colors block py-2 text-lg">Головна</a></li>
+            <li><a href="#" class="hover:text-white transition-colors block py-2 text-lg">Події</a></li>
+            <li><a href="#" class="hover:text-white transition-colors block py-2 text-lg">Бізнес-каталог</a></li>
+            <li><a href="#" class="hover:text-white transition-colors block py-2 text-lg">Пошук житла</a></li>
+            <li><a href="#" class="hover:text-white transition-colors block py-2 text-lg">Вакансії</a></li>
+          </ul>
+        </div>
+        
+        <!-- Help -->
+        <div>
+          <h4 class="font-bold mb-6 text-xl">Допомога</h4>
+          <ul class="space-y-4 text-white text-opacity-80">
+            <li><a href="#" class="hover:text-white transition-colors block py-2 text-lg">Як подати оголошення</a></li>
+            <li><a href="#" class="hover:text-white transition-colors block py-2 text-lg">Правила спільноти</a></li>
+            <li><a href="#" class="hover:text-white transition-colors block py-2 text-lg">Корисні документи</a></li>
+            <li><a href="ask.html" class="hover:text-white transition-colors block py-2 text-lg">Питання і відповіді</a></li>
+          </ul>
+        </div>
+        
+        <!-- Contact -->
+        <div>
+          <h4 class="font-bold mb-6 text-xl">Зв'язок з нами</h4>
+          <div class="space-y-6 text-white text-opacity-80">
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <a href="mailto:info.vlcua@gmail.com" class="hover:text-white transition-colors text-lg">info.vlcua@gmail.com</a>
+            </div>
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg flex items-center justify-center mr-4">
+                <i class="fab fa-telegram"></i>
+              </div>
+              <a href="https://t.me/vlcua24" class="hover:text-white transition-colors text-lg">@vlcua24</a>
+            </div>
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+              <span class="text-lg">Валенсія, Іспанія</span>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      
+      <div class="border-t border-white border-opacity-20 mt-12 pt-8 text-center">
+        <p class="text-white text-opacity-70 text-lg">
+          © 2025 VLC.UA - Українці в Валенсії. Створено з ❤️ для нашої спільноти
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Question Modal -->
+  <div id="question-modal" class="modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-8">
+        <h3 class="text-2xl font-bold text-gray-900">Задати питання</h3>
+        <button onclick="UIManager.closeModal('question-modal')" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
+          <i class="fas fa-times text-gray-600"></i>
+        </button>
+      </div>
+      
+      <div class="space-y-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Заголовок питання</label>
+          <input type="text" id="question-title" placeholder="Коротко опишіть ваше питання..." class="input">
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Детальний опис</label>
+          <textarea id="question-description" rows="4" placeholder="Розкажіть детальніше про ваше питання..." class="input resize-none"></textarea>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Категорія</label>
+          <select id="question-category" class="input">
+            <option value="general">Загальні питання</option>
+            <option value="housing">Житло</option>
+            <option value="work">Робота</option>
+            <option value="documents">Документи</option>
+            <option value="life">Життя в Іспанії</option>
+            <option value="business">Бізнес</option>
+            <option value="other">Інше</option>
+          </select>
+        </div>
+        
+        <!-- Photo Upload Section -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Фото (необов'язково)
+            <span class="text-xs text-gray-500 ml-1">JPG, PNG до 5МБ</span>
+          </label>
+          <div class="file-upload-area" id="photo-upload-area" onclick="document.getElementById('photo-input').click()">
+            <input type="file" id="photo-input" accept="image/jpeg,image/jpg,image/png" style="display: none;" onchange="FileManager.handlePhotoUpload(this)">
+            <i class="fas fa-cloud-upload-alt text-2xl text-blue-400 mb-2"></i>
+            <p class="text-sm text-gray-600 mb-1">Клікніть або перетягніть фото сюди</p>
+            <p class="text-xs text-gray-500">Максимум 5МБ, формати: JPG, PNG</p>
+          </div>
+          <div id="photo-preview" style="display: none;"></div>
+        </div>
+        
+        <!-- URL Link Section -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Посилання (необов'язково)
+            <span class="text-xs text-gray-500 ml-1">Корисне посилання до питання</span>
+          </label>
+          <div class="url-input-group">
+            <input type="url" id="question-url" placeholder="https://example.com" class="input pr-12" oninput="FileManager.validateURL(this)">
+            <div class="url-validation" id="url-validation" style="display: none;"></div>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Ваше ім'я</label>
+          <input type="text" id="question-author" placeholder="Як до вас звертатися?" class="input">
+        </div>
+        
+        <div class="flex flex-col sm:flex-row gap-4 pt-4">
+          <button onclick="QAManager.submitQuestion()" class="btn btn-primary flex-1">
+            <i class="fas fa-paper-plane mr-2"></i>Опублікувати
+          </button>
+          <button onclick="UIManager.closeModal('question-modal')" class="btn btn-secondary sm:w-auto">Скасувати</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Search Modal -->
+  <div id="search-modal" class="modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-8">
+        <h3 class="text-2xl font-bold text-gray-900">Пошук питань і відповідей</h3>
+        <button onclick="UIManager.closeModal('search-modal')" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
+          <i class="fas fa-times text-gray-600"></i>
+        </button>
+      </div>
+      
+      <div class="space-y-6">
+        <input type="text" id="search-input" placeholder="Що шукаєте?" class="input" autofocus>
+        
+        <div class="grid grid-cols-2 gap-3">
+          <button class="btn btn-secondary text-sm h-12" onclick="SearchManager.quickSearch('житло')">
+            <i class="fas fa-home mr-2"></i>Житло
+          </button>
+          <button class="btn btn-secondary text-sm h-12" onclick="SearchManager.quickSearch('робота')">
+            <i class="fas fa-briefcase mr-2"></i>Робота
+          </button>
+          <button class="btn btn-secondary text-sm h-12" onclick="SearchManager.quickSearch('документи')">
+            <i class="fas fa-file-alt mr-2"></i>Документи
+          </button>
+          <button class="btn btn-secondary text-sm h-12" onclick="SearchManager.quickSearch('новачок')">
+            <i class="fas fa-user-plus mr-2"></i>Новачок
+          </button>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row gap-4 pt-4">
+          <button onclick="SearchManager.performSearch()" class="btn btn-primary flex-1">
+            <i class="fas fa-search mr-2"></i>Знайти
+          </button>
+          <button onclick="UIManager.closeModal('search-modal')" class="btn btn-secondary sm:w-auto">Скасувати</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification -->
+  <div id="notification" class="notification"></div>
+
+  <script>
+    // === DATA MANAGER (MOVED FROM MAIN PAGE) ===
+    const DataManager = {
+      questions: [],
+      currentFilter: 'all',
+      
+      // Sample QA data
+      sampleQuestions: [
+        {
+          id: 1,
+          title: 'Як отримати NIE в Валенсії?',
+          description: 'Хто знає де краще записатися на NIE? Скільки це займає часу і які документи потрібні? Дуже потрібна допомога!',
+          author: 'Анна К.',
+          category: 'documents',
+          date: new Date('2025-02-03'),
+          views: 156,
+          answers: 8,
+          votes: 23,
+          status: 'hot',
+          tags: ['nie', 'документи', 'іспанія'],
+          attachments: {
+            url: 'https://extranjeros.inclusion.gob.es/es/index.html'
+          }
+        },
+        {
+          id: 2,
+          title: 'Де купити українські продукти?',
+          description: 'Шукаю магазини з українськими продуктами у Валенсії. Може хтось знає де можна знайти гречку, сало, консерви?',
+          author: 'Михайло В.',
+          category: 'life',
+          date: new Date('2025-02-02'),
+          views: 89,
+          answers: 12,
+          votes: 19,
+          status: 'resolved',
+          tags: ['їжа', 'продукти', 'магазини'],
+          attachments: {
+            photo: { name: 'ukrainian_store.jpg', size: 234567 }
+          }
+        },
+        {
+          id: 3,
+          title: 'Робота в ресторанах - досвід?',
+          description: 'Хто працював офіціантом в Валенсії? Яка зарплата, умови, чи потрібна іспанська мова? Поділіться досвідом будь ласка.',
+          author: 'Олексій М.',
+          category: 'work',
+          date: new Date('2025-02-01'),
+          views: 134,
+          answers: 15,
+          votes: 31,
+          status: 'trending',
+          tags: ['робота', 'ресторан', 'офіціант']
+        },
+        {
+          id: 4,
+          title: 'Оренда квартири - на що звертати увагу?',
+          description: 'Перший раз орендую житло в Іспанії. Які підводні камені? Що важливо перевірити перед підписанням договору?',
+          author: 'Марія Л.',
+          category: 'housing',
+          date: new Date('2025-01-31'),
+          views: 67,
+          answers: 6,
+          votes: 14,
+          status: 'new',
+          tags: ['оренда', 'житло', 'договір']
+        },
+        {
+          id: 5,
+          title: 'Безкоштовні курси іспанської мови',
+          description: 'Чи є у Валенсії безкоштовні курси іспанської для іммігрантів? Де можна записатися?',
+          author: 'Ірина С.',
+          category: 'life',
+          date: new Date('2025-01-30'),
+          views: 92,
+          answers: 0,
+          votes: 8,
+          status: 'unanswered',
+          tags: ['мова', 'курси', 'навчання']
+        },
+        {
+          id: 6,
+          title: 'Відкриття банківського рахунку',
+          description: 'В якому банку краще відкрити рахунок? Які документи потрібні? Чи можна без NIE?',
+          author: 'Дмитро К.',
+          category: 'documents',
+          date: new Date('2025-01-29'),
+          views: 145,
+          answers: 9,
+          votes: 22,
+          status: 'resolved',
+          tags: ['банк', 'рахунок', 'документи']
+        },
+        {
+          id: 7,
+          title: 'Дитячі садки в Валенсії',
+          description: 'Хто знає як записати дитину в дитячий садок? Які документи потрібні і коли краще подавати заявку?',
+          author: 'Оксана Р.',
+          category: 'life',
+          date: new Date('2025-01-28'),
+          views: 78,
+          answers: 4,
+          votes: 11,
+          status: 'new',
+          tags: ['діти', 'садок', 'освіта']
+        },
+        {
+          id: 8,
+          title: 'Стартап в Іспанії - з чого почати?',
+          description: 'Планую запустити IT-стартап у Валенсії. Хто має досвід реєстрації бізнесу? Які перші кроки?',
+          author: 'Андрій Т.',
+          category: 'business',
+          date: new Date('2025-01-27'),
+          views: 201,
+          answers: 11,
+          votes: 35,
+          status: 'hot',
+          tags: ['бізнес', 'стартап', 'реєстрація']
+        }
+      ],
+      
+      init() {
+        this.questions = [...this.sampleQuestions];
+        this.updateStats();
+      },
+      
+      getQuestions(filter = 'all') {
+        let filtered = this.questions;
+        
+        switch(filter) {
+          case 'hot':
+            filtered = this.questions.filter(q => q.status === 'hot');
+            break;
+          case 'trending':
+            filtered = this.questions.filter(q => q.status === 'trending');
+            break;
+          case 'new':
+            filtered = this.questions.filter(q => q.status === 'new');
+            break;
+          case 'resolved':
+            filtered = this.questions.filter(q => q.status === 'resolved');
+            break;
+          case 'unanswered':
+            filtered = this.questions.filter(q => q.answers === 0);
+            break;
+        }
+        
+        // Sort by activity score (votes + answers + recent activity)
+        return filtered.sort((a, b) => {
+          const scoreA = a.votes + (a.answers * 2) + (a.status === 'hot' ? 50 : 0) + (a.status === 'trending' ? 30 : 0);
+          const scoreB = b.votes + (b.answers * 2) + (b.status === 'hot' ? 50 : 0) + (b.status === 'trending' ? 30 : 0);
+          return scoreB - scoreA;
+        });
+      },
+      
+      // ENHANCED SEARCH FROM MAIN PAGE
+      searchQuestions(query) {
+        const searchTerm = query.toLowerCase().trim();
+        return this.questions.filter(q => 
+          q.title.toLowerCase().includes(searchTerm) ||
+          q.description.toLowerCase().includes(searchTerm) ||
+          q.tags.some(tag => tag.toLowerCase().includes(searchTerm)) ||
+          q.category.toLowerCase().includes(searchTerm) ||
+          Utils.getCategoryName(q.category).toLowerCase().includes(searchTerm)
+        );
+      },
+      
+      addQuestion(questionData) {
+        const newQuestion = {
+          id: Date.now(),
+          ...questionData,
+          date: new Date(),
+          views: 0,
+          answers: 0,
+          votes: 0,
+          status: 'new',
+          tags: this.extractTags(questionData.title + ' ' + questionData.description),
+          attachments: questionData.attachments || {}
+        };
+        
+        this.questions.unshift(newQuestion);
+        this.updateStats();
+        return newQuestion;
+      },
+      
+      extractTags(text) {
+        const commonWords = ['як', 'що', 'де', 'коли', 'чому', 'хто', 'в', 'на', 'з', 'до', 'від', 'за', 'у', 'і', 'та', 'або'];
+        const words = text.toLowerCase().split(/\s+/).filter(word => 
+          word.length > 2 && !commonWords.includes(word)
+        );
+        return [...new Set(words)].slice(0, 5);
+      },
+      
+      updateStats() {
+        const totalQuestions = this.questions.length;
+        const totalAnswers = this.questions.reduce((sum, q) => sum + q.answers, 0);
+        const resolvedCount = this.questions.filter(q => q.status === 'resolved').length;
+        const resolvedPercent = totalQuestions > 0 ? Math.round((resolvedCount / totalQuestions) * 100) : 0;
+        
+        const totalQuestionsEl = document.getElementById('total-questions');
+        const totalAnswersEl = document.getElementById('total-answers');
+        const activeUsersEl = document.getElementById('active-users');
+        const resolvedPercentEl = document.getElementById('resolved-percent');
+        
+        if (totalQuestionsEl) totalQuestionsEl.textContent = totalQuestions;
+        if (totalAnswersEl) totalAnswersEl.textContent = totalAnswers;
+        if (activeUsersEl) activeUsersEl.textContent = Math.floor(totalQuestions * 0.7);
+        if (resolvedPercentEl) resolvedPercentEl.textContent = resolvedPercent + '%';
+      }
+    };
+    
+    // === UTILITIES (ENHANCED FROM MAIN PAGE) ===
+    const Utils = {
+      formatDate(date) {
+        const now = new Date();
+        const diff = now - date;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        
+        if (days === 0) return 'Сьогодні';
+        if (days === 1) return 'Вчора';
+        if (days < 7) return `${days} днів тому`;
+        if (days < 30) return `${Math.floor(days / 7)} тижнів тому`;
+        
+        return date.toLocaleDateString('uk-UA', { 
+          day: 'numeric', 
+          month: 'short' 
+        });
+      },
+      
+      getCategoryName(category) {
+        const names = {
+          general: 'Загальні',
+          housing: 'Житло',
+          work: 'Робота',
+          documents: 'Документи',
+          life: 'Життя',
+          business: 'Бізнес',
+          other: 'Інше'
+        };
+        return names[category] || category;
+      },
+      
+      getBadgeHTML(status) {
+        switch(status) {
+          case 'hot':
+            return '<span class="hot-badge">🔥 Гаряче</span>';
+          case 'trending':
+            return '<span class="trending-badge">📈 Популярне</span>';
+          case 'resolved':
+            return '<span class="resolved-badge">✅ Вирішено</span>';
+          case 'new':
+            return '<span class="new-badge">✨ Нове</span>';
+          default:
+            return '';
+        }
+      }
+    };
+    
+    // === MOBILE FILTERS MANAGER ===
+    const MobileFilters = {
+      isDropdownOpen: false,
+      
+      toggleDropdown() {
+        const dropdown = document.getElementById('filter-dropdown');
+        const arrow = document.getElementById('dropdown-arrow');
+        
+        this.isDropdownOpen = !this.isDropdownOpen;
+        
+        if (this.isDropdownOpen) {
+          dropdown.classList.add('active');
+          arrow.style.transform = 'rotate(180deg)';
+          setTimeout(() => {
+            document.addEventListener('click', this.handleClickOutside.bind(this));
+          }, 100);
+        } else {
+          dropdown.classList.remove('active');
+          arrow.style.transform = 'rotate(0deg)';
+          document.removeEventListener('click', this.handleClickOutside.bind(this));
+        }
+        
+        if ('vibrate' in navigator) {
+          navigator.vibrate(10);
+        }
+      },
+      
+      handleClickOutside(event) {
+        const dropdown = document.getElementById('filter-dropdown');
+        const header = document.querySelector('.mobile-filter-header');
+        
+        if (!dropdown.contains(event.target) && !header.contains(event.target)) {
+          this.closeDropdown();
+        }
+      },
+      
+      closeDropdown() {
+        const dropdown = document.getElementById('filter-dropdown');
+        const arrow = document.getElementById('dropdown-arrow');
+        
+        dropdown.classList.remove('active');
+        arrow.style.transform = 'rotate(0deg)';
+        this.isDropdownOpen = false;
+        
+        document.removeEventListener('click', this.handleClickOutside.bind(this));
+      },
+      
+      selectFilter(filter, element) {
+        document.querySelectorAll('.filter-option').forEach(opt => opt.classList.remove('active'));
+        element.classList.add('active');
+        
+        const currentFilter = document.getElementById('current-filter');
+        const filterIcon = element.querySelector('i, span').cloneNode(true);
+        const filterText = element.querySelector('span:nth-child(2)').textContent;
+        
+        currentFilter.innerHTML = '';
+        currentFilter.appendChild(filterIcon);
+        currentFilter.innerHTML += `<span>${filterText}</span>`;
+        
+        this.closeDropdown();
+        QAManager.switchTab(filter, null);
+        this.updateQuickActions(filter);
+        
+        if ('vibrate' in navigator) {
+          navigator.vibrate(15);
+        }
+        
+        UIManager.showNotification(`Фільтр змінено: ${filterText}`);
+      },
+      
+      updateQuickActions(activeFilter) {
+        // Функція залишається для сумісності, але нічого не робить
+        // оскільки швидкі дії приховані на мобільних пристроях
+        console.log('Quick actions hidden on mobile');
+      },
+      
+      updateFilterCounts() {
+        const counts = this.getFilterCounts();
+        
+        Object.keys(counts).forEach(filter => {
+          const badge = document.getElementById(`badge-${filter}`);
+          if (badge) {
+            badge.textContent = counts[filter];
+          }
+        });
+      },
+      
+      getFilterCounts() {
+        const questions = DataManager.questions;
+        
+        return {
+          all: questions.length,
+          hot: questions.filter(q => q.status === 'hot').length,
+          trending: questions.filter(q => q.status === 'trending').length,
+          new: questions.filter(q => q.status === 'new').length,
+          resolved: questions.filter(q => q.status === 'resolved').length,
+          unanswered: questions.filter(q => q.answers === 0).length
+        };
+      },
+      
+      init() {
+        this.updateFilterCounts();
+        setInterval(() => {
+          this.updateFilterCounts();
+        }, 30000);
+      }
+    };
+    
+    // === AUTH MANAGER ===
+    const AuthManager = {
+      currentUser: null,
+      
+      isAuthenticated() {
+        return this.currentUser !== null;
+      },
+      
+      getCurrentUser() {
+        return this.currentUser || null;
+      },
+      
+      mockLogin(userData = { name: 'Тест Користувач', email: 'test@vlc.ua' }) {
+        this.currentUser = userData;
+        UIManager.showNotification('Ви увійшли в систему!');
+        this.updateAuthUI();
+      },
+      
+      mockLogout() {
+        this.currentUser = null;
+        UIManager.showNotification('Ви вийшли з системи');
+        this.updateAuthUI();
+      },
+      
+      updateAuthUI() {
+        QAManager.renderQuestions();
+      },
+      
+      requireAuth(action = 'виконати цю дію') {
+        if (!this.isAuthenticated()) {
+          UIManager.showNotification(`Щоб ${action}, будь ласка, увійдіть або зареєструйтеся`, 'error');
+          return false;
+        }
+        return true;
+      },
+      
+      showAuthRequired() {
+        UIManager.showNotification('Увійдіть в систему щоб залишити відповідь', 'error');
+      }
+    };
+    
+    // === FILE MANAGER ===
+    const FileManager = {
+      maxFileSize: 5 * 1024 * 1024,
+      allowedTypes: ['image/jpeg', 'image/jpg', 'image/png'],
+      uploadedPhoto: null,
+      
+      initDragAndDrop() {
+        const uploadArea = document.getElementById('photo-upload-area');
+        if (!uploadArea) return;
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+          uploadArea.addEventListener(eventName, this.preventDefaults, false);
+        });
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+          uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'), false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+          uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'), false);
+        });
+        
+        uploadArea.addEventListener('drop', this.handleDrop.bind(this), false);
+      },
+      
+      preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      },
+      
+      handleDrop(e) {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          this.handlePhotoUpload({ files: [files[0]] });
+        }
+      },
+      
+      handlePhotoUpload(input) {
+        const file = input.files ? input.files[0] : null;
+        if (!file) return;
+        
+        if (!this.allowedTypes.includes(file.type)) {
+          UIManager.showNotification('Дозволені тільки JPG та PNG файли', 'error');
+          return;
+        }
+        
+        if (file.size > this.maxFileSize) {
+          UIManager.showNotification('Файл занадто великий. Максимум 5МБ', 'error');
+          return;
+        }
+        
+        this.uploadedPhoto = file;
+        this.showPhotoPreview(file);
+        UIManager.showNotification('Фото успішно додано!');
+      },
+      
+      showPhotoPreview(file) {
+        const previewContainer = document.getElementById('photo-preview');
+        
+        const preview = `
+          <div class="file-preview">
+            <div class="file-info">
+              <i class="fas fa-image"></i>
+              <span>${file.name}</span>
+              <span class="text-xs text-gray-500">(${this.formatFileSize(file.size)})</span>
+            </div>
+            <button type="button" class="file-remove" onclick="FileManager.removePhoto()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        `;
+        
+        previewContainer.innerHTML = preview;
+        previewContainer.style.display = 'block';
+      },
+      
+      removePhoto() {
+        this.uploadedPhoto = null;
+        document.getElementById('photo-preview').style.display = 'none';
+        document.getElementById('photo-input').value = '';
+        UIManager.showNotification('Фото видалено');
+      },
+      
+      validateURL(input) {
+        const url = input.value.trim();
+        const validation = document.getElementById('url-validation');
+        
+        if (!url) {
+          validation.style.display = 'none';
+          input.style.borderColor = 'rgba(142, 142, 147, 0.2)';
+          return;
+        }
+        
+        try {
+          new URL(url);
+          validation.innerHTML = '<i class="fas fa-check"></i>';
+          validation.className = 'url-validation valid';
+          validation.style.display = 'block';
+          input.style.borderColor = '#34C759';
+        } catch {
+          validation.innerHTML = '<i class="fas fa-times"></i>';
+          validation.className = 'url-validation invalid';
+          validation.style.display = 'block';
+          input.style.borderColor = '#FF3B30';
+        }
+      },
+      
+      formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      },
+      
+      getQuestionAttachments() {
+        const attachments = {};
+        
+        if (this.uploadedPhoto) {
+          attachments.photo = {
+            file: this.uploadedPhoto,
+            name: this.uploadedPhoto.name,
+            size: this.uploadedPhoto.size
+          };
+        }
+        
+        const urlInput = document.getElementById('question-url');
+        if (urlInput && urlInput.value.trim()) {
+          try {
+            new URL(urlInput.value.trim());
+            attachments.url = urlInput.value.trim();
+          } catch {
+            // Invalid URL, ignore
+          }
+        }
+        
+        return attachments;
+      },
+      
+      clearAttachments() {
+        this.removePhoto();
+        const urlInput = document.getElementById('question-url');
+        if (urlInput) {
+          urlInput.value = '';
+          this.validateURL(urlInput);
+        }
+      }
+    };
+    
+    // === UI MANAGER (ENHANCED FROM MAIN PAGE) ===
+    const UIManager = {
+      toggleMenu() {
+        const menu = document.getElementById('side-menu');
+        const overlay = document.getElementById('menu-overlay');
+        const hamburger = document.getElementById('hamburger');
+        
+        menu.classList.toggle('active');
+        overlay.classList.toggle('active');
+        hamburger.classList.toggle('active');
+        
+        document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : '';
+      },
+      
+      openQuestionModal() {
+        const modal = document.getElementById('question-modal');
+        modal.classList.add('active');
+        setTimeout(() => {
+          document.getElementById('question-title').focus();
+        }, 100);
+      },
+      
+      openSearch() {
+        const modal = document.getElementById('search-modal');
+        modal.classList.add('active');
+        setTimeout(() => {
+          document.getElementById('search-input').focus();
+        }, 100);
+      },
+      
+      closeModal(modalId) {
+        document.getElementById(modalId).classList.remove('active');
+        
+        if (modalId === 'question-modal') {
+          document.getElementById('question-title').value = '';
+          document.getElementById('question-description').value = '';
+          document.getElementById('question-author').value = '';
+          document.getElementById('question-category').value = 'general';
+          FileManager.clearAttachments();
+        }
+        
+        if (modalId === 'search-modal') {
+          document.getElementById('search-input').value = '';
+        }
+      },
+      
+      showNotification(message, type = 'success') {
+        const notification = document.getElementById('notification');
+        notification.textContent = message;
+        notification.className = `notification ${type} show`;
+        
+        setTimeout(() => {
+          notification.classList.remove('show');
+        }, 4000);
+      }
+    };
+    
+    // === SEARCH MANAGER (ENHANCED FROM MAIN PAGE) ===
+    const SearchManager = {
+      quickSearch(term) {
+        document.getElementById('search-input').value = term;
+        this.performSearch();
+      },
+      
+      performSearch() {
+        const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
+        
+        if (!searchTerm) {
+          UIManager.showNotification('Введіть пошуковий запит', 'error');
+          return;
+        }
+        
+        const results = DataManager.searchQuestions(searchTerm);
+        
+        UIManager.closeModal('search-modal');
+        
+        if (results.length > 0) {
+          QAManager.renderQuestions(results);
+          QAManager.setActiveTab('all');
+          UIManager.showNotification(`Знайдено ${results.length} результатів для "${searchTerm}"`);
+        } else {
+          QAManager.renderEmptyState();
+          UIManager.showNotification(`Нічого не знайдено для "${searchTerm}"`, 'error');
+        }
+      }
+    };
+    
+    // === QA MANAGER ===
+    const QAManager = {
+      renderQuestions(customQuestions = null) {
+        const container = document.getElementById('qa-container');
+        const questionsToShow = customQuestions || DataManager.getQuestions(DataManager.currentFilter);
+        
+        if (questionsToShow.length === 0) {
+          this.renderEmptyState();
+          return;
+        }
+        
+        container.innerHTML = questionsToShow.map(question => `
+          <div class="qa-card ${question.status}" data-id="${question.id}">
+            <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-2">
+              <div class="flex items-center flex-wrap gap-2">
+                <span class="text-sm text-blue-600 font-semibold px-3 py-1 bg-blue-50 rounded-full">
+                  ${Utils.getCategoryName(question.category)}
+                </span>
+                ${Utils.getBadgeHTML(question.status)}
+              </div>
+              <span class="text-xs text-gray-500 font-medium bg-gray-50 px-3 py-1 rounded-full">
+                ${Utils.formatDate(question.date)}
+              </span>
+            </div>
+            
+            <h3 class="text-xl font-semibold mb-3 leading-tight text-gray-900 cursor-pointer hover:text-blue-600 transition-colors">
+              ${question.title}
+            </h3>
+            
+            <p class="text-gray-700 mb-4 leading-relaxed">
+              ${question.description}
+            </p>
+            
+            <div class="flex items-center flex-wrap gap-2 mb-4">
+              ${question.tags.slice(0, 3).map(tag => `
+                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-lg">#${tag}</span>
+              `).join('')}
+            </div>
+            
+            ${question.attachments && (question.attachments.photo || question.attachments.url) ? `
+              <div class="question-attachments">
+                ${question.attachments.photo ? `
+                  <div class="attachment-item">
+                    <i class="fas fa-image"></i>
+                    <span>Фото: ${question.attachments.photo.name}</span>
+                  </div>
+                ` : ''}
+                ${question.attachments.url ? `
+                  <a href="${question.attachments.url}" target="_blank" class="attachment-item hover:bg-blue-50 transition-colors">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>Посилання</span>
+                  </a>
+                ` : ''}
+              </div>
+            ` : ''}
+            
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-gray-100">
+              <div class="flex items-center gap-4 text-sm text-gray-600">
+                <span class="flex items-center">
+                  <i class="fas fa-user mr-1 text-gray-400"></i>
+                  ${question.author}
+                </span>
+                <span class="flex items-center">
+                  <i class="fas fa-eye mr-1 text-gray-400"></i>
+                  ${question.views}
+                </span>
+              </div>
+              
+              <div class="flex items-center gap-3">
+                <div class="rating-system">
+                  <button class="vote-btn" onclick="QAManager.vote(${question.id}, 'up')">
+                    <i class="fas fa-thumbs-up"></i>
+                    ${question.votes}
+                  </button>
+                </div>
+                
+                <button class="btn btn-secondary text-sm px-4 py-2" onclick="QAManager.toggleAnswers(${question.id})">
+                  <i class="fas fa-comments mr-1"></i>
+                  ${question.answers} відповідей
+                </button>
+                
+                ${AuthManager.isAuthenticated() ? `
+                  <button class="btn btn-primary text-sm px-4 py-2" onclick="QAManager.showAnswerForm(${question.id})">
+                    <i class="fas fa-reply mr-1"></i>
+                    Відповісти
+                  </button>
+                ` : `
+                  <button class="btn btn-disabled text-sm px-4 py-2" onclick="AuthManager.showAuthRequired()">
+                    <i class="fas fa-lock mr-1"></i>
+                    Увійти щоб відповісти
+                  </button>
+                `}
+              </div>
+            </div>
+            
+            <div id="answer-form-${question.id}" style="display: none;">
+              ${AuthManager.isAuthenticated() ? `
+                <div class="answer-form">
+                  <textarea placeholder="Напишіть вашу відповідь..." rows="3" class="input mb-3" id="answer-text-${question.id}"></textarea>
+                  <div class="flex gap-2">
+                    <button class="btn btn-primary text-sm" onclick="QAManager.submitAnswer(${question.id})">
+                      <i class="fas fa-paper-plane mr-1"></i>
+                      Відправити
+                    </button>
+                    <button class="btn btn-secondary text-sm" onclick="QAManager.hideAnswerForm(${question.id})">
+                      Скасувати
+                    </button>
+                  </div>
+                </div>
+              ` : `
+                <div class="auth-required-overlay">
+                  <p class="auth-required-text">
+                    <i class="fas fa-lock mr-2"></i>
+                    Щоб залишити відповідь, будь ласка, увійдіть або зареєструйтеся
+                  </p>
+                  <div class="flex gap-2 justify-center">
+                    <button class="btn btn-primary text-sm" onclick="AuthManager.mockLogin()">
+                      <i class="fas fa-sign-in-alt mr-1"></i>
+                      Увійти (тест)
+                    </button>
+                    <button class="btn btn-secondary text-sm" onclick="QAManager.hideAnswerForm(${question.id})">
+                      Скасувати
+                    </button>
+                  </div>
+                </div>
+              `}
+            </div>
+            
+            <div id="answers-${question.id}" style="display: none;">
+              ${question.answers > 0 ? this.generateSampleAnswers(question.id, question.answers) : ''}
+            </div>
+          </div>
+        `).join('');
+      },
+      
+      generateSampleAnswers(questionId, answerCount) {
+        if (answerCount === 0) return '';
+        
+        const sampleAnswers = [
+          { author: 'Олег П.', text: 'Я проходив цю процедуру минулого року. Найкраще записуватися через інтернет на сайті. Візьміть з собою копії всіх документів.', votes: 12 },
+          { author: 'Ніна К.', text: 'Рекомендую йти в офіс на Carrer de Xàtiva рано вранці, там менше черга. Зазвичай процес займає 2-3 тижні.', votes: 8 },
+          { author: 'Максим Б.', text: 'Обов\'язково потрібен переклад документів на іспанську, завірений в консульстві. Без цього не приймуть.', votes: 15 }
+        ];
+        
+        return sampleAnswers.slice(0, Math.min(answerCount, 3)).map((answer, index) => `
+          <div class="answer-item">
+            <div class="flex justify-between items-start mb-2">
+              <strong class="text-sm text-gray-800">${answer.author}</strong>
+              <div class="rating-system">
+                <button class="vote-btn text-xs" onclick="QAManager.voteAnswer(${questionId}, ${index}, 'up')">
+                  <i class="fas fa-thumbs-up"></i>
+                  ${answer.votes}
+                </button>
+              </div>
+            </div>
+            <p class="text-gray-700 text-sm leading-relaxed">${answer.text}</p>
+          </div>
+        `).join('');
+      },
+      
+      renderEmptyState() {
+        const container = document.getElementById('qa-container');
+        container.innerHTML = `
+          <div class="text-center py-16">
+            <div class="w-20 h-20 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+              <i class="fas fa-question-circle text-3xl text-gray-400"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-700 mb-3">Питань поки немає</h3>
+            <p class="text-gray-500 mb-8 max-w-md mx-auto leading-relaxed">
+              У цій категорії ще немає питань. Станьте першим, хто задасть питання!
+            </p>
+            <button onclick="UIManager.openQuestionModal()" class="btn btn-primary">
+              <i class="fas fa-plus mr-2"></i>Задати перше питання
+            </button>
+          </div>
+        `;
+      },
+      
+      switchTab(filter, tabElement) {
+        if (tabElement) {
+          document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+          tabElement.classList.add('active');
+        } else {
+          document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('active');
+            if (tab.dataset.filter === filter) {
+              tab.classList.add('active');
+            }
+          });
+        }
+
+        DataManager.currentFilter = filter;
+        this.renderQuestions();
+        
+        const container = document.getElementById('qa-container');
+        container.classList.add('filter-transition');
+        
+        setTimeout(() => {
+          container.classList.remove('filter-transition');
+        }, 400);
+      },
+      
+      switchQuickFilter(filter, element) {
+        // Функція залишається для сумісності, але на мобільних не використовується
+        // Просто перенаправляємо на звичайне переключення фільтра
+        this.switchTab(filter, null);
+      },
+      
+      setActiveTab(filter) {
+        DataManager.currentFilter = filter;
+        
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+          tab.classList.remove('active');
+          if (tab.dataset.filter === filter) {
+            tab.classList.add('active');
+          }
+        });
+        
+        // Оновлення тільки dropdown фільтрів на мобільних
+        document.querySelectorAll('.filter-option').forEach(opt => {
+          opt.classList.remove('active');
+          if (opt.dataset.filter === filter) {
+            opt.classList.add('active');
+            
+            const currentFilter = document.getElementById('current-filter');
+            const filterIcon = opt.querySelector('i, span').cloneNode(true);
+            const filterText = opt.querySelector('span:nth-child(2)').textContent;
+            
+            currentFilter.innerHTML = '';
+            currentFilter.appendChild(filterIcon);
+            currentFilter.innerHTML += `<span>${filterText}</span>`;
+          }
+        });
+      },
+      
+      submitQuestion() {
+        const title = document.getElementById('question-title').value.trim();
+        const description = document.getElementById('question-description').value.trim();
+        const category = document.getElementById('question-category').value;
+        const author = document.getElementById('question-author').value.trim() || 'Аноним';
+        
+        if (!title) {
+          UIManager.showNotification('Введіть заголовок питання', 'error');
+          return;
+        }
+        
+        if (!description) {
+          UIManager.showNotification('Введіть опис питання', 'error');
+          return;
+        }
+        
+        const attachments = FileManager.getQuestionAttachments();
+        
+        const newQuestion = DataManager.addQuestion({
+          title,
+          description,
+          category,
+          author,
+          attachments
+        });
+        
+        UIManager.closeModal('question-modal');
+        UIManager.showNotification('Питання успішно додано!');
+        
+        this.setActiveTab('new');
+        this.renderQuestions();
+        
+        setTimeout(() => {
+          const newQuestionElement = document.querySelector(`[data-id="${newQuestion.id}"]`);
+          if (newQuestionElement) {
+            newQuestionElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 300);
+      },
+      
+      showAnswerForm(questionId) {
+        const answerForm = document.getElementById(`answer-form-${questionId}`);
+        if (answerForm) {
+          answerForm.style.display = answerForm.style.display === 'none' ? 'block' : 'none';
+          
+          if (answerForm.style.display === 'block') {
+            setTimeout(() => {
+              const textArea = document.getElementById(`answer-text-${questionId}`);
+              if (textArea) textArea.focus();
+            }, 100);
+          }
+        }
+      },
+      
+      hideAnswerForm(questionId) {
+        const answerForm = document.getElementById(`answer-form-${questionId}`);
+        if (answerForm) {
+          answerForm.style.display = 'none';
+          const textArea = document.getElementById(`answer-text-${questionId}`);
+          if (textArea) textArea.value = '';
+        }
+      },
+      
+      submitAnswer(questionId) {
+        const answerText = document.getElementById(`answer-text-${questionId}`).value.trim();
+        
+        if (!answerText) {
+          UIManager.showNotification('Введіть текст відповіді', 'error');
+          return;
+        }
+        
+        const question = DataManager.questions.find(q => q.id === questionId);
+        if (question) {
+          question.answers += 1;
+          if (question.status === 'unanswered') {
+            question.status = 'new';
+          }
+        }
+        
+        this.hideAnswerForm(questionId);
+        UIManager.showNotification('Відповідь додана!');
+        
+        DataManager.updateStats();
+        this.renderQuestions();
+      },
+      
+      toggleAnswers(questionId) {
+        const answersDiv = document.getElementById(`answers-${questionId}`);
+        if (answersDiv) {
+          answersDiv.style.display = answersDiv.style.display === 'none' ? 'block' : 'none';
+        }
+      },
+      
+      vote(questionId, direction) {
+        const question = DataManager.questions.find(q => q.id === questionId);
+        if (question && direction === 'up') {
+          question.votes += 1;
+          
+          if (question.votes >= 20 && question.status !== 'hot') {
+            question.status = 'hot';
+          } else if (question.votes >= 10 && question.status === 'new') {
+            question.status = 'trending';
+          }
+          
+          UIManager.showNotification('Дякуємо за голос!');
+          this.renderQuestions();
+        }
+      },
+      
+      voteAnswer(questionId, answerIndex, direction) {
+        UIManager.showNotification('Дякуємо за оцінку відповіді!');
+      }
+    };
+    
+    // === EVENT HANDLERS ===
+    const EventHandlers = {
+      init() {
+        document.addEventListener('click', (e) => {
+          if (e.target.classList.contains('modal')) {
+            e.target.classList.remove('active');
+          }
+        });
+        
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            document.querySelectorAll('.modal.active').forEach(modal => {
+              modal.classList.remove('active');
+            });
+            
+            const menu = document.getElementById('side-menu');
+            if (menu.classList.contains('active')) {
+              UIManager.toggleMenu();
+            }
+          }
+          
+          if (e.key === 'Enter' && e.target.id === 'search-input') {
+            SearchManager.performSearch();
+          }
+          
+          if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            if (e.target.id === 'question-description') {
+              QAManager.submitQuestion();
+            }
+          }
+          
+          if (e.ctrlKey || e.metaKey) {
+            if (e.key === 'k') {
+              e.preventDefault();
+              UIManager.openSearch();
+            }
+            if (e.key === 'q') {
+              e.preventDefault();
+              UIManager.openQuestionModal();
+            }
+          }
+        });
+        
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+          const now = (new Date()).getTime();
+          if (now - lastTouchEnd <= 300) {
+            event.preventDefault();
+          }
+          lastTouchEnd = now;
+        }, false);
+        
+        window.addEventListener('orientationchange', function() {
+          setTimeout(() => {
+            window.scrollTo(window.scrollX, window.scrollY);
+          }, 100);
+        });
+        
+        document.addEventListener('click', (e) => {
+          if ((e.target.classList.contains('btn') || e.target.classList.contains('vote-btn')) && 'vibrate' in navigator) {
+            navigator.vibrate(10);
+          }
+        });
+      }
+    };
+    
+    // === ANIMATION MANAGER ===
+    const AnimationManager = {
+      init() {
+        document.documentElement.style.scrollBehavior = 'smooth';
+        
+        const observerOptions = {
+          threshold: 0.1,
+          rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.style.opacity = '1';
+              entry.target.style.transform = 'translateY(0)';
+            }
+          });
+        }, observerOptions);
+        
+        setTimeout(() => {
+          const elementsToObserve = document.querySelectorAll('.qa-card, .glass-card');
+          elementsToObserve.forEach((element, index) => {
+            if (element) {
+              element.style.opacity = '0';
+              element.style.transform = 'translateY(20px)';
+              element.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+              observer.observe(element);
+            }
+          });
+        }, 200);
+      }
+    };
+    
+    // === LIVE UPDATES ===
+    const LiveUpdates = {
+      init() {
+        setInterval(() => {
+          DataManager.questions.forEach(question => {
+            if (Math.random() < 0.03) {
+              question.views += Math.floor(Math.random() * 3) + 1;
+            }
+            
+            if (question.status === 'hot' && Math.random() < 0.02) {
+              question.votes += 1;
+            }
+          });
+          
+          DataManager.updateStats();
+          
+          if (Math.random() < 0.01) {
+            const newQuestions = DataManager.questions.filter(q => q.status === 'new' && q.votes >= 5);
+            if (newQuestions.length > 0) {
+              const randomQuestion = newQuestions[Math.floor(Math.random() * newQuestions.length)];
+              randomQuestion.status = 'trending';
+            }
+          }
+        }, 15000);
+      }
+    };
+    
+    // === APP INITIALIZATION ===
+    const App = {
+      init() {
+        console.log('🚀 VLC.UA Q&A Platform initializing...');
+        
+        DataManager.init();
+        
+        setTimeout(() => {
+          QAManager.renderQuestions();
+          FileManager.initDragAndDrop();
+          console.log('✅ Q&A Content rendered successfully');
+        }, 300);
+        
+        EventHandlers.init();
+        AnimationManager.init();
+        LiveUpdates.init();
+        MobileFilters.init();
+        
+        console.log('🎉 VLC.UA Q&A Platform ready!');
+      }
+    };
+    
+    // === START THE APPLICATION ===
+    document.addEventListener('DOMContentLoaded', function() {
+      App.init();
+    });
+    
+    // Global error handler
+    window.addEventListener('error', function(e) {
+      console.error('VLC.UA Q&A Error:', e.error);
+      UIManager.showNotification('Сталася помилка. Спробуйте оновити сторінку.', 'error');
+    });
+    
+    // Performance monitoring
+    window.addEventListener('load', function() {
+      setTimeout(() => {
+        const perfData = performance.getEntriesByType('navigation')[0];
+        if (perfData) {
+          console.log(`⚡ Q&A Page loaded in ${Math.round(perfData.loadEventEnd - perfData.fetchStart)}ms`);
+        }
+      }, 0);
+    });
+  </script>
+</body>
+</html>
