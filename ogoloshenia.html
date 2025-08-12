@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Маркетплейс - VLC.UA - Українці в Валенсії</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <style>
+    * {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    body {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* === CORE STYLES === */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    .glass-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+    
+    @media (max-width: 768px) {
+      .glass-card {
+        padding: 16px;
+        border-radius: 24px;
+      }
+      
+      .glass-card:active {
+        transform: scale(0.98);
+        transition: transform 0.1s;
+      }
+    }
+    
+    /* === BUTTONS === */
+    .btn {
+      padding: 14px 28px;
+      border-radius: 14px;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      color: white;
+      box-shadow: 0 8px 24px rgba(0, 122, 255, 0.25);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0, 122, 255, 0.35);
+    }
+    
+    .btn-secondary {
+      background: rgba(142, 142, 147, 0.12);
+      color: #1C1C1E;
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+      .btn {
+        padding: 16px 24px;
+        min-height: 52px;
+        border-radius: 16px;
+      }
+      
+      .btn:active {
+        transform: scale(0.95);
+      }
+    }
+    
+    /* === NAVIGATION === */
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      padding: 14px;
+      z-index: 1001;
+      position: relative;
+      min-height: 48px;
+      min-width: 48px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+    
+    .hamburger span {
+      width: 26px;
+      height: 3px;
+      background: #1C1C1E;
+      margin: 3px 0;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      border-radius: 2px;
+    }
+    
+    .hamburger.active span:nth-child(1) {
+      transform: rotate(45deg) translate(6px, 6px);
+      background: #007AFF;
+    }
+    
+    .hamburger.active span:nth-child(2) {
+      opacity: 0;
+      transform: scale(0);
+    }
+    
+    .hamburger.active span:nth-child(3) {
+      transform: rotate(-45deg) translate(6px, -6px);
+      background: #007AFF;
+    }
+    
+    .side-menu {
+      position: fixed;
+      top: 0;
+      left: -380px;
+      width: 380px;
+      height: 100vh;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(40px);
+      -webkit-backdrop-filter: blur(40px);
+      z-index: 1000;
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      border-right: 1px solid rgba(255, 255, 255, 0.2);
+      overflow-y: auto;
+    }
+    
+    @media (max-width: 768px) {
+      .side-menu {
+        width: 85vw;
+        left: -85vw;
+        border-radius: 0 24px 24px 0;
+      }
+    }
+    
+    .side-menu.active {
+      left: 0;
+    }
+    
+    .menu-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      z-index: 999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+    }
+    
+    .menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .menu-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 60px 24px 32px;
+      text-align: center;
+      position: relative;
+      color: white;
+    }
+    
+    .menu-close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 44px;
+      height: 44px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 20px 24px;
+      color: #1C1C1E;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-left: 4px solid transparent;
+      font-size: 17px;
+      font-weight: 500;
+    }
+    
+    .menu-item:hover {
+      background: rgba(0, 122, 255, 0.05);
+      border-left-color: #007AFF;
+      color: #007AFF;
+      transform: translateX(8px);
+    }
+    
+    .menu-item i {
+      margin-right: 16px;
+      width: 24px;
+      font-size: 18px;
+    }
+    
+    /* === MODALS === */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .modal.active {
+      display: flex;
+      opacity: 1;
+    }
+    
+    .modal-content {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(40px);
+      border-radius: 24px;
+      padding: 32px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      transform: scale(0.9);
+      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+    
+    .modal.active .modal-content {
+      transform: scale(1);
+    }
+    
+    /* === FORMS === */
+    .input {
+      width: 100%;
+      padding: 16px 20px;
+      border: 2px solid rgba(142, 142, 147, 0.2);
+      border-radius: 14px;
+      font-size: 17px;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      transition: all 0.3s ease;
+      min-height: 52px;
+      -webkit-appearance: none;
+    }
+    
+    .input:focus {
+      outline: none;
+      border-color: #007AFF;
+      box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+      background: rgba(255, 255, 255, 0.95);
+    }
+
+    textarea.input {
+      min-height: 120px;
+      resize: vertical;
+    }
+    
+    /* === LISTING CARDS === */
+    .listing-card {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+      backdrop-filter: blur(30px);
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      cursor: pointer;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .listing-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    .listing-image {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      overflow: hidden;
+    }
+
+    .listing-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .listing-card:hover .listing-image img {
+      transform: scale(1.1);
+    }
+
+    .listing-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      color: white;
+      backdrop-filter: blur(10px);
+      animation: pulse 2s infinite;
+    }
+
+    .badge-sale {
+      background: linear-gradient(135deg, #34C759, #20c997);
+    }
+
+    .badge-exchange {
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+    }
+
+    .badge-service {
+      background: linear-gradient(135deg, #AF52DE, #5A32A3);
+    }
+
+    .badge-urgent {
+      background: linear-gradient(135deg, #FF3B30, #FF2D92);
+      animation: pulse 1s infinite;
+    }
+
+    .badge-free {
+      background: linear-gradient(135deg, #34C759, #20c997);
+      top: 12px;
+      left: 12px;
+    }
+
+    .listing-content {
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .listing-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1C1C1E;
+      margin-bottom: 8px;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .listing-price {
+      font-size: 18px;
+      font-weight: 700;
+      color: #34C759;
+      margin-bottom: 8px;
+    }
+
+    .listing-location {
+      color: #8E8E93;
+      font-size: 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+    }
+
+    .listing-meta {
+      display: flex;
+      justify-content: between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid rgba(142, 142, 147, 0.1);
+    }
+
+    .listing-date {
+      color: #8E8E93;
+      font-size: 12px;
+    }
+
+    .listing-views {
+      color: #8E8E93;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+    }
+    
+    /* === NOTIFICATIONS === */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(52, 199, 89, 0.95);
+      backdrop-filter: blur(20px);
+      color: white;
+      padding: 16px 24px;
+      border-radius: 16px;
+      z-index: 2000;
+      transform: translateX(400px);
+      transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      box-shadow: 0 8px 32px rgba(52, 199, 89, 0.3);
+      max-width: 320px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.error {
+      background: rgba(255, 59, 48, 0.95);
+      box-shadow: 0 8px 32px rgba(255, 59, 48, 0.3);
+    }
+    
+    @media (max-width: 768px) {
+      .notification {
+        top: 16px;
+        right: 16px;
+        left: 16px;
+        max-width: none;
+        transform: translateY(-100px);
+        text-align: center;
+        border-radius: 20px;
+      }
+      
+      .notification.show {
+        transform: translateY(0);
+      }
+    }
+    
+    /* === HERO === */
+    .hero-section {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #f5576c 75%, #4facfe 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 8s ease infinite;
+      border-radius: 24px;
+      padding: 40px 24px;
+      text-align: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+    
+    .hero-title {
+      font-size: 2.5rem;
+      line-height: 1.1;
+      font-weight: 800;
+    }
+    
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2rem;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .hero-title {
+        font-size: 1.8rem;
+      }
+    }
+
+    /* === FILTER TABS === */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      background: rgba(142, 142, 147, 0.1);
+      border: 2px solid rgba(142, 142, 147, 0.2);
+      color: #495057;
+      padding: 10px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .filter-tab:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .filter-tab.active {
+      background: #007AFF;
+      color: white;
+      border-color: #007AFF;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 122, 255, 0.3);
+    }
+
+    /* === FLOATING BUTTON === */
+    .floating-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #007AFF, #5856D6);
+      color: white;
+      border: none;
+      box-shadow: 0 8px 32px rgba(0, 122, 255, 0.4);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .floating-btn:hover {
+      transform: scale(1.1) translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 122, 255, 0.5);
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+
+    /* === LISTINGS GRID === */
+    .listings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.6s ease;
+    }
+
+    .listings-grid.loaded {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      animation: loading 1.5s infinite;
+    }
+
+    @keyframes loading {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    /* === IMAGE UPLOAD === */
+    .image-upload-area {
+      border: 2px dashed #d1d5db;
+      border-radius: 12px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+
+    .image-upload-area:hover, .image-upload-area.dragover {
+      border-color: #007AFF;
+      background: rgba(0, 122, 255, 0.05);
+      transform: scale(1.02);
+    }
+
+    .image-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .image-preview-item {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .image-preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .remove-image {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      background: rgba(255, 59, 48, 0.9);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 768px) {
+      .hero-section {
+        padding: 32px 20px;
+        margin-bottom: 20px;
+      }
+      
+      .listings-grid {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 16px;
+      }
+      
+      .floating-btn {
+        bottom: 80px;
+        width: 56px;
+        height: 56px;
+        font-size: 20px;
+      }
+
+      .filter-tabs {
+        justify-content: center;
+      }
+
+      .modal-content {
+        padding: 24px;
+        margin: 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .listings-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50">
+  
+  <!-- Menu Overlay -->
+  <div id="menu-overlay" class="menu-overlay" onclick="toggleMenu()"></div>
+  
+  <!-- Side Menu -->
+  <div id="side-menu" class="side-menu">
+    <div class="menu-header">
+      <button class="menu-close-btn" onclick="toggleMenu()">
+        <i class="fas fa-times"></i>
+      </button>
+      
+      <img src="logo.png" alt="VLC.UA Logo" class="h-12 w-auto mx-auto mb-4 filter brightness-0 invert" 
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+      <h2 class="text-2xl font-bold" style="display:none;">VLC.UA</h2>
+      <p class="opacity-80">Українці в Валенсії</p>
+    </div>
+    
+    <nav class="py-6">
+      <a href="#" class="menu-item">
+        <i class="fas fa-home"></i>
+        Головна
+      </a>
+      <a href="#" class="menu-item">
+        <i class="fas fa-calendar"></i>
+        Події
+      </a>
+      <a href="#" class="menu-item">
+        <i class="fas fa-store"></i>
+        Бізнес
+      </a>
+      <a href="#" class="menu-item">
+        <i class="fas fa-shopping-bag"></i>
+        Маркетплейс
+      </a>
+      
+      <div class="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent mx-6 my-6"></div>
+      
+      <a href="#" class="menu-item">
+        <i class="fas fa-book"></i>
+        Корисні поради
+      </a>
+      <a href="#" class="menu-item">
+        <i class="fas fa-file-alt"></i>
+        Документи
+      </a>
+      <a href="#" class="menu-item">
+        <i class="fas fa-question-circle"></i>
+        Як зробити...
+      </a>
+      <a href="#" class="menu-item">
+        <i class="fas fa-users"></i>
+        Про спільноту
+      </a>
+      <a href="#" class="menu-item">
+        <i class="fas fa-envelope"></i>
+        Контакти
+      </a>
+    </nav>
+  </div>
+
+  <!-- Header -->
+  <header class="bg-white bg-opacity-80 backdrop-blur-xl sticky top-0 z-40 border-b border-gray-200 border-opacity-20">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="h-16 md:h-20 flex justify-between items-center">
+        <!-- Hamburger -->
+        <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        
+        <!-- Logo -->
+        <div class="absolute left-1/2 transform -translate-x-1/2">
+          <img src="logo.png" alt="VLC.UA Logo" class="h-10 md:h-12 w-auto transition-transform hover:scale-105" 
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+          <h1 class="text-2xl font-bold text-blue-600" style="display:none;">VLC.UA</h1>
+        </div>
+        
+        <!-- Search -->
+        <button onclick="openSearchModal()" class="p-3 rounded-xl bg-gray-100 hover:bg-gray-200 transition-all">
+          <i class="fas fa-search text-gray-600"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Floating Add Button -->
+  <button class="floating-btn" onclick="openAddModal()" title="Додати оголошення">
+    <i class="fas fa-plus"></i>
+  </button>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 py-6 md:py-8">
+    
+    <!-- Hero Section -->
+    <section class="hero-section relative z-10">
+      <div class="relative z-10">
+        <h1 class="hero-title font-bold mb-4">
+          <i class="fas fa-bullhorn mr-3"></i>Оголошення VLC.UA
+        </h1>
+        <p class="text-lg md:text-xl mb-6 opacity-90 max-w-3xl mx-auto leading-relaxed">
+          Дошка оголошень української спільноти у Валенсії. Купуйте, продавайте та обмінюйтеся
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+          <button onclick="openSearchModal()" class="btn btn-primary flex-1 glass-card">
+            <i class="fas fa-search mr-2"></i>Пошук
+          </button>
+          <button onclick="openAddModal()" class="btn btn-secondary flex-1 glass-card">
+            <i class="fas fa-plus mr-2"></i>Додати
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <section>
+      <div class="glass-card">
+        
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+          <div class="filter-tab active" onclick="toggleFilter(this, 'all')">
+            <i class="fas fa-list mr-2"></i>Всі (<span id="count-all">24</span>)
+          </div>
+          <div class="filter-tab" onclick="toggleFilter(this, 'sale')">
+            <i class="fas fa-tag mr-2"></i>Продаж (<span id="count-sale">15</span>)
+          </div>
+          <div class="filter-tab" onclick="toggleFilter(this, 'exchange')">
+            <i class="fas fa-exchange-alt mr-2"></i>Обмін (<span id="count-exchange">4</span>)
+          </div>
+          <div class="filter-tab" onclick="toggleFilter(this, 'service')">
+            <i class="fas fa-hand-holding-heart mr-2"></i>Послуги (<span id="count-service">5</span>)
+          </div>
+        </div>
+        
+        <!-- Results Count -->
+        <div class="mb-6">
+          <div class="flex justify-between items-center">
+            <div class="font-semibold text-gray-700">
+              Знайдено: <span id="results-count" class="text-blue-600 font-bold">24</span> оголошень
+            </div>
+            <div class="flex gap-2">
+              <button onclick="sortListings('date')" class="text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                <i class="fas fa-calendar mr-1"></i>За датою
+              </button>
+              <span class="text-gray-300">|</span>
+              <button onclick="sortListings('price')" class="text-sm text-gray-600 hover:text-blue-600 transition-colors">
+                <i class="fas fa-euro-sign mr-1"></i>За ціною
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skeleton Loader -->
+        <div id="skeleton-loader" class="listings-grid hidden">
+          <div class="skeleton h-80 rounded-2xl"></div>
+          <div class="skeleton h-80 rounded-2xl"></div>
+          <div class="skeleton h-80 rounded-2xl"></div>
+          <div class="skeleton h-80 rounded-2xl"></div>
+        </div>
+
+        <!-- Listings Grid -->
+        <div id="listings-container" class="listings-grid">
+          <!-- Listings will be populated here -->
+        </div>
+
+        <!-- Load More Button -->
+        <div class="text-center mt-8">
+          <button id="load-more" onclick="loadMoreListings()" class="btn btn-secondary" style="display: none;">
+            <i class="fas fa-plus mr-2"></i>Завантажити більше
+          </button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="mt-12 md:mt-16 py-12 md:py-16 text-white relative overflow-hidden" 
+          style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute inset-0" style="background-image: radial-gradient(circle at 20% 80%, white 1px, transparent 1px), radial-gradient(circle at 80% 20%, white 1px, transparent 1px); background-size: 60px 60px, 40px 40px;"></div>
+    </div>
+    
+    <div class="max-w-6xl mx-auto px-4 relative z-10">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+        
+        <!-- About -->
+        <div class="col-span-1 md:col-span-2 lg:col-span-1">
+          <div class="flex items-center mb-6">
+            <img src="logo.png" alt="VLC.UA Logo" class="h-10 w-auto mr-3 filter brightness-0 invert" 
+                 onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">
+            <h3 class="text-2xl font-bold" style="display:none;">VLC.UA</h3>
+          </div>
+          <p class="text-white text-opacity-90 mb-8 leading-relaxed text-lg">
+            Найбільша українська спільнота в Валенсії. Допомагаємо адаптуватися, 
+            знаходити житло, роботу та нових друзів.
+          </p>
+          <div class="flex space-x-4">
+            <a href="https://t.me/vlcua24" class="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white hover:bg-opacity-30 transition-all">
+              <i class="fab fa-telegram text-xl"></i>
+            </a>
+            <a href="https://www.instagram.com/vlc.ua" class="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white hover:bg-opacity-30 transition-all">
+              <i class="fab fa-instagram text-xl"></i>
+            </a>
+            <a href="#" class="w-12 h-12 bg-white bg-opacity-20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white hover:bg-opacity-30 transition-all">
+              <i class="fab fa-facebook text-xl"></i>
+            </a>
+          </div>
+        </div>
+        
+        <!-- Quick Links -->
+        <div>
+          <h4 class="font-bold mb-6 text-xl">Швидкі посилання</h4>
+          <ul class="space-y-4 text-white text-opacity-80">
+            <li><a href="#" class="hover:text-white transition-colors block py-2 text-lg">Події</a></li>
+            <li><a href="#" class="hover:text-white transition-colors block py-2 text-lg">Бізнес-каталог</a></li>
+            <li><a href="#" class="hover:text-white transition-colors block py-2 text-lg">Маркетплейс</a></li>
+            <li><a href="#" class="hover:text-white transition-colors block py-2 text-lg">Спільнота</a></li>
+          </ul>
+        </div>
+        
+        <!-- Help -->
+        <div>
+          <h4 class="font-bold mb-6 text-xl">Допомога</h4>
+          <ul class="space-y-4 text-white text-opacity-80">
+            <li><a href="#" class="hover:text-white transition-colors block py-2 text-lg">Як подати оголошення</a></li>
+            <li><a href="#" class="hover:text-white transition-colors block py-2 text-lg">Правила спільноти</a></li>
+            <li><a href="#" class="hover:text-white transition-colors block py-2 text-lg">Корисні документи</a></li>
+            <li><a href="#" class="hover:text-white transition-colors block py-2 text-lg">Контакти</a></li>
+          </ul>
+        </div>
+        
+        <!-- Contact -->
+        <div>
+          <h4 class="font-bold mb-6 text-xl">Зв'язок з нами</h4>
+          <div class="space-y-6 text-white text-opacity-80">
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-envelope"></i>
+              </div>
+              <a href="mailto:info.vlcua@gmail.com" class="hover:text-white transition-colors text-lg">info.vlcua@gmail.com</a>
+            </div>
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg flex items-center justify-center mr-4">
+                <i class="fab fa-telegram"></i>
+              </div>
+              <a href="https://t.me/vlcua24" class="hover:text-white transition-colors text-lg">@vlcua24</a>
+            </div>
+            <div class="flex items-center">
+              <div class="w-10 h-10 bg-white bg-opacity-20 backdrop-blur-sm rounded-lg flex items-center justify-center mr-4">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+              <span class="text-lg">Валенсія, Іспанія</span>
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      
+      <div class="border-t border-white border-opacity-20 mt-12 pt-8 text-center">
+        <p class="text-white text-opacity-70 text-lg">
+          © 2025 VLC.UA - Українці в Валенсії. Створено з ❤️ для нашої спільноти
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Search Modal -->
+  <div id="search-modal" class="modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-8">
+        <h3 class="text-2xl font-bold text-gray-900">Пошук оголошень</h3>
+        <button onclick="closeModal('search-modal')" class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition-colors">
+          <i class="fas fa-times text-gray-600"></i>
+        </button>
+      </div>
+      
+      <div class="space-y-6">
+        <div class="relative">
+          <input type="text" id="search-input" placeholder="Що шукаєте? iPhone, велосипед, послуги..." class="input" autofocus>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-3">
+          <button class="btn btn-secondary text-sm h-12" onclick="quickSearch('продаж')">
+            <i class="fas fa-tag mr-2"></i>Продаж
+          </button>
+          <button class="btn btn-secondary text-sm h-12" onclick="quickSearch('обмін')">
+            <i class="fas fa-exchange-alt mr-2"></i>Обмін
+          </button>
+          <button class="btn btn-secondary text-sm h-12" onclick="quickSearch('послуги')">
+            <i class="fas fa-hand-holding-heart mr-2"></i>Послуги
+          </button>
+          <button class="btn btn-secondary text-sm h-12" onclick="quickSearch('безкоштовно')">
+            <i class="fas fa-gift mr-2"></i>Безкоштовно
+          </button>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row gap-4 pt-4">
+          <button onclick="performSearch()" class="btn btn-primary flex-1">
+            <i class="fas fa-search mr-2"></i>Знайти
+          </button>
+          <button onclick="closeModal('search-modal')" class="btn btn-secondary sm:w-auto">Скасувати</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Modal -->
+  <div id="add-modal" class="modal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold">Додати оголошення</h2>
+        <button onclick="closeModal('add-modal')" class="text-gray-500 hover:text-gray-700 text-2xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <form id="listing-form" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-2">Назва оголошення *</label>
+          <input type="text" required class="input" placeholder="Наприклад: iPhone 14 Pro 256GB у відмінному стані">
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Тип оголошення *</label>
+            <select required class="input" onchange="updatePricePlaceholder(this.value)">
+              <option value="">Оберіть тип</option>
+              <option value="sale">Продаж</option>
+              <option value="exchange">Обмін</option>
+              <option value="service">Послуги</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Категорія *</label>
+            <select required class="input">
+              <option value="">Оберіть категорію</option>
+              <option value="electronics">Електроніка</option>
+              <option value="transport">Транспорт</option>
+              <option value="furniture">Меблі</option>
+              <option value="clothing">Одяг</option>
+              <option value="sport">Спорт</option>
+              <option value="books">Книги</option>
+              <option value="other">Інше</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Ціна</label>
+            <input type="text" id="price-input" class="input" placeholder="950 €, За домовленістю, або Безкоштовно">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-2">Район</label>
+            <select class="input">
+              <option value="">Оберіть район</option>
+              <option value="centro">Центр</option>
+              <option value="russafa">Russafa</option>
+              <option value="benimaclet">Benimaclet</option>
+              <option value="campanar">Campanar</option>
+              <option value="poblats">Poblats Marítims</option>
+              <option value="algiros">Algirós</option>
+            </select>
+          </div>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium mb-2">Опис *</label>
+          <textarea required class="input" placeholder="Детально опишіть товар або послугу. Вкажіть стан, особливості, причину продажу..."></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-2">Контакти *</label>
+            <input type="text" required class="input" placeholder="Телефон або Telegram">
+          </div>
+          <div class="flex items-center gap-4 pt-6">
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-2">
+              <span class="text-sm">Терміново</span>
+            </label>
+            <label class="flex items-center">
+              <input type="checkbox" class="mr-2">
+              <span class="text-sm">Доставка можлива</span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="flex gap-4 pt-4">
+          <button type="submit" class="btn btn-primary flex-1">
+            <i class="fas fa-check mr-2"></i>Опублікувати
+          </button>
+          <button type="button" onclick="closeModal('add-modal')" class="btn btn-secondary">
+            Скасувати
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notification -->
+  <div id="notification" class="notification">
+    <span id="notification-text"></span>
+  </div>
+
+  <script>
+    // Sample data
+    const listingsData = [
+      {
+        id: 1,
+        title: 'iPhone 14 Pro 256GB Space Black',
+        price: '950 €',
+        priceValue: 950,
+        type: 'sale',
+        category: 'electronics',
+        location: 'Центр',
+        date: '2024-08-10',
+        description: 'iPhone 14 Pro у відмінному стані. Куплений 6 місяців тому, використовувався акуратно.',
+        image: 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=400&h=300&fit=crop',
+        urgent: false,
+        delivery: true,
+        views: 156,
+        contact: '+34 612 345 678',
+        author: 'Олександр'
+      },
+      {
+        id: 2,
+        title: 'BMW X5 2019 року в ідеальному стані',
+        price: '35000 €',
+        priceValue: 35000,
+        type: 'sale',
+        category: 'transport',
+        location: 'Russafa',
+        date: '2024-08-09',
+        description: 'BMW X5 2019 року, дизель, автомат. Пробіг 45000 км.',
+        image: 'https://images.unsplash.com/photo-1555215695-3004980ad54e?w=400&h=300&fit=crop',
+        urgent: true,
+        delivery: false,
+        views: 243,
+        contact: '@bmw_seller_vlc',
+        author: 'Максим'
+      },
+      {
+        id: 3,
+        title: 'Диван IKEA Ektorp у відмінному стані',
+        price: '200 €',
+        priceValue: 200,
+        type: 'sale',
+        category: 'furniture',
+        location: 'Benimaclet',
+        date: '2024-08-08',
+        description: 'Диван IKEA Ektorp 3-місний, світло-сірий.',
+        image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop',
+        urgent: false,
+        delivery: true,
+        views: 89,
+        contact: '+34 687 654 321',
+        author: 'Марина'
+      },
+      {
+        id: 4,
+        title: 'Обмінюю PlayStation 5 на Xbox Series X',
+        price: 'За домовленістю',
+        priceValue: 0,
+        type: 'exchange',
+        category: 'electronics',
+        location: 'Campanar',
+        date: '2024-08-07',
+        description: 'PlayStation 5 в ідеальному стані, куплена півроку тому.',
+        image: 'https://images.unsplash.com/photo-1607853202273-797f1c22a38e?w=400&h=300&fit=crop',
+        urgent: false,
+        delivery: false,
+        views: 67,
+        contact: '@gamer_vlc',
+        author: 'Дмитро'
+      },
+      {
+        id: 5,
+        title: 'Послуги перекладу документів',
+        price: '15 € за сторінку',
+        priceValue: 15,
+        type: 'service',
+        category: 'other',
+        location: 'Вся Валенсія',
+        date: '2024-08-06',
+        description: 'Професійний переклад документів. Маю ліцензію.',
+        image: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=400&h=300&fit=crop',
+        urgent: false,
+        delivery: false,
+        views: 89,
+        contact: '+34 645 123 789',
+        author: 'Ірина'
+      }
+    ];
+
+    // Variables
+    let allListings = [...listingsData];
+    let currentFilter = 'all';
+    let filteredListings = [...allListings];
+    let currentPage = 1;
+    const listingsPerPage = 8;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      showSkeleton();
+      setTimeout(() => {
+        hideSkeleton();
+        displayListings();
+        updateResultsCount();
+      }, 1000);
+    });
+
+    // Menu functions
+    function toggleMenu() {
+      const menu = document.getElementById('side-menu');
+      const overlay = document.getElementById('menu-overlay');
+      const hamburger = document.getElementById('hamburger');
+      
+      menu.classList.toggle('active');
+      overlay.classList.toggle('active');
+      hamburger.classList.toggle('active');
+      
+      document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : '';
+    }
+
+    // Modal functions
+    function openSearchModal() {
+      document.getElementById('search-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => {
+        document.getElementById('search-input').focus();
+      }, 100);
+    }
+
+    function openAddModal() {
+      document.getElementById('add-modal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Search functions
+    function quickSearch(term) {
+      document.getElementById('search-input').value = term;
+      performSearch();
+    }
+
+    function performSearch() {
+      const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
+      
+      if (!searchTerm) {
+        showNotification('Введіть пошуковий запит', 'error');
+        return;
+      }
+      
+      const results = allListings.filter(listing => 
+        listing.title.toLowerCase().includes(searchTerm) ||
+        listing.description.toLowerCase().includes(searchTerm) ||
+        listing.location.toLowerCase().includes(searchTerm)
+      );
+      
+      closeModal('search-modal');
+      document.getElementById('search-input').value = '';
+      
+      filteredListings = results;
+      currentPage = 1;
+      displayListings();
+      updateResultsCount();
+      
+      if (results.length > 0) {
+        showNotification(`Знайдено ${results.length} результатів`);
+      } else {
+        showNotification('Нічого не знайдено', 'error');
+      }
+    }
+
+    // Filter functions
+    function toggleFilter(chipElement, filterType) {
+      document.querySelectorAll('.filter-tab').forEach(chip => chip.classList.remove('active'));
+      chipElement.classList.add('active');
+      
+      currentFilter = filterType;
+      filterListings();
+    }
+
+    function filterListings() {
+      let filtered = [...allListings];
+      
+      if (currentFilter !== 'all') {
+        filtered = filtered.filter(listing => listing.type === currentFilter);
+      }
+      
+      filteredListings = filtered;
+      currentPage = 1;
+      displayListings();
+      updateResultsCount();
+    }
+
+    // Sort functions
+    function sortListings(sortBy) {
+      switch(sortBy) {
+        case 'date':
+          filteredListings.sort((a, b) => new Date(b.date) - new Date(a.date));
+          break;
+        case 'price':
+          filteredListings.sort((a, b) => a.priceValue - b.priceValue);
+          break;
+      }
+      
+      displayListings();
+      showNotification(`Відсортовано за ${sortBy === 'date' ? 'датою' : 'ціною'}`);
+    }
+
+    // Display functions
+    function showSkeleton() {
+      document.getElementById('skeleton-loader').classList.remove('hidden');
+      document.getElementById('listings-container').style.opacity = '0.3';
+    }
+
+    function hideSkeleton() {
+      document.getElementById('skeleton-loader').classList.add('hidden');
+      document.getElementById('listings-container').style.opacity = '1';
+      document.getElementById('listings-container').classList.add('loaded');
+    }
+
+    function displayListings() {
+      const container = document.getElementById('listings-container');
+      const endIndex = currentPage * listingsPerPage;
+      const displayedListings = filteredListings.slice(0, endIndex);
+      
+      if (displayedListings.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full text-center py-16">
+            <i class="fas fa-search text-6xl text-gray-400 mb-6"></i>
+            <h3 class="text-2xl font-semibold text-gray-600 mb-4">Нічого не знайдено</h3>
+            <p class="text-gray-500 text-lg mb-6">Спробуйте змінити критерії пошуку</p>
+            <button onclick="clearFilters()" class="btn btn-primary">
+              <i class="fas fa-refresh mr-2"></i>Скинути фільтри
+            </button>
+          </div>
+        `;
+        document.getElementById('load-more').style.display = 'none';
+        return;
+      }
+      
+      container.innerHTML = displayedListings.map((listing, index) => `
+        <div class="listing-card" style="animation-delay: ${index * 0.1}s">
+          <div class="listing-image">
+            <img src="${listing.image}" alt="${listing.title}" loading="lazy">
+            ${getBadgeHTML(listing)}
+          </div>
+          <div class="listing-content">
+            <div class="listing-title">${listing.title}</div>
+            <div class="listing-price">${listing.price}</div>
+            <div class="listing-location">
+              <i class="fas fa-map-marker-alt mr-2"></i>
+              ${listing.location}
+            </div>
+            <div class="listing-meta">
+              <div class="listing-date">${formatDate(listing.date)}</div>
+              <div class="listing-views">
+                <i class="fas fa-eye mr-1"></i>
+                ${listing.views || 0}
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Show/hide load more button
+      const loadMoreBtn = document.getElementById('load-more');
+      if (endIndex < filteredListings.length) {
+        loadMoreBtn.style.display = 'block';
+      } else {
+        loadMoreBtn.style.display = 'none';
+      }
+    }
+
+    function loadMoreListings() {
+      currentPage++;
+      displayListings();
+      showNotification('Завантажено більше оголошень');
+    }
+
+    function clearFilters() {
+      currentFilter = 'all';
+      document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelector('.filter-tab').classList.add('active');
+      
+      filteredListings = [...allListings];
+      currentPage = 1;
+      displayListings();
+      updateResultsCount();
+      showNotification('Фільтри скинуто');
+    }
+
+    // Utility functions
+    function getBadgeHTML(listing) {
+      let badges = [];
+      
+      if (listing.urgent) {
+        badges.push('<div class="listing-badge badge-urgent">ТЕРМІНОВО</div>');
+      } else {
+        switch (listing.type) {
+          case 'sale':
+            badges.push('<div class="listing-badge badge-sale">ПРОДАЖ</div>');
+            break;
+          case 'exchange':
+            badges.push('<div class="listing-badge badge-exchange">ОБМІН</div>');
+            break;
+          case 'service':
+            badges.push('<div class="listing-badge badge-service">ПОСЛУГИ</div>');
+            break;
+        }
+      }
+      
+      if (listing.delivery) {
+        badges.push('<div class="listing-badge" style="top: 50px; background: linear-gradient(135deg, #007AFF, #5856D6);">ДОСТАВКА</div>');
+      }
+      
+      if (listing.priceValue === 0 && listing.price === 'Безкоштовно') {
+        badges.push('<div class="listing-badge badge-free">БЕЗКОШТОВНО</div>');
+      }
+      
+      return badges.join('');
+    }
+
+    function updateResultsCount() {
+      document.getElementById('results-count').textContent = filteredListings.length;
+      
+      const counts = {
+        all: allListings.length,
+        sale: allListings.filter(item => item.type === 'sale').length,
+        exchange: allListings.filter(item => item.type === 'exchange').length,
+        service: allListings.filter(item => item.type === 'service').length
+      };
+      
+      Object.keys(counts).forEach(key => {
+        const element = document.getElementById(`count-${key}`);
+        if (element) {
+          element.textContent = counts[key];
+        }
+      });
+    }
+
+    function updatePricePlaceholder(type) {
+      const priceInput = document.getElementById('price-input');
+      switch(type) {
+        case 'sale':
+          priceInput.placeholder = '950 €, За домовленістю, або Безкоштовно';
+          break;
+        case 'exchange':
+          priceInput.placeholder = 'За домовленістю, або + доплата';
+          break;
+        case 'service':
+          priceInput.placeholder = '15 € за годину, або За домовленістю';
+          break;
+        default:
+          priceInput.placeholder = 'Введіть ціну';
+      }
+    }
+
+    function showNotification(message, type = 'success') {
+      const notification = document.getElementById('notification');
+      const text = document.getElementById('notification-text');
+      
+      text.textContent = message;
+      notification.className = `notification ${type}`;
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 4000);
+    }
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffTime = Math.abs(now - date);
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (diffDays === 0) return 'Сьогодні';
+      if (diffDays === 1) return 'Вчора';
+      if (diffDays < 7) return `${diffDays} днів тому`;
+      if (diffDays < 30) return `${Math.ceil(diffDays / 7)} тижнів тому`;
+      return date.toLocaleDateString('uk-UA');
+    }
+
+    // Form submission
+    document.getElementById('listing-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const newListing = {
+        id: allListings.length + 1,
+        title: this.querySelector('input[type="text"]').value,
+        price: this.querySelector('#price-input').value || 'За домовленістю',
+        priceValue: parseFloat(this.querySelector('#price-input').value) || 0,
+        type: this.querySelector('select').value,
+        category: this.querySelectorAll('select')[1].value,
+        location: this.querySelectorAll('select')[2].options[this.querySelectorAll('select')[2].selectedIndex].text || 'Валенсія',
+        date: new Date().toISOString().split('T')[0],
+        description: this.querySelector('textarea').value,
+        image: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop',
+        urgent: this.querySelector('input[type="checkbox"]').checked,
+        delivery: this.querySelectorAll('input[type="checkbox"]')[1].checked,
+        views: 0,
+        contact: this.querySelectorAll('input[type="text"]')[1].value,
+        author: 'Новий користувач'
+      };
+
+      allListings.unshift(newListing);
+      filteredListings = [newListing, ...filteredListings];
+      displayListings();
+      updateResultsCount();
+      
+      showNotification('Оголошення успішно додано! 🎉');
+      closeModal('add-modal');
+      this.reset();
+    });
+
+    // Close modals when clicking outside
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          closeModal(modal.id);
+        }
+      });
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal.active').forEach(modal => {
+          closeModal(modal.id);
+        });
+        
+        if (document.getElementById('side-menu').classList.contains('active')) {
+          toggleMenu();
+        }
+      }
+      
+      if (e.key === 'Enter' && e.target.id === 'search-input') {
+        performSearch();
+      }
+      
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        openSearchModal();
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        openAddModal();
+      }
+    });
+
+    // Infinite scroll
+    window.addEventListener('scroll', function() {
+      if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 1000) {
+        if (currentPage * listingsPerPage < filteredListings.length) {
+          loadMoreListings();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
